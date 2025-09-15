@@ -1,0 +1,19 @@
+# IDE
+.vscode/
+.idea/
+
+# Maven
+myplants/backend/target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Node
+myplants/frontend/node_modules/
+myplants/frontend/dist/
+npm-debug.log*
+yarn-error.log*
+
+# SO
+.DS_Store
+
+# Env
+.env
