@@ -29,8 +29,10 @@ import java.util.List;
 public class SecurityConfig {
 
   @Bean
-  PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
-
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder(); // simple y consistente
+  }  
+  
   @Bean
   UserDetailsService userDetailsService(UserRepository users){
     return username -> users.findByEmail(username)

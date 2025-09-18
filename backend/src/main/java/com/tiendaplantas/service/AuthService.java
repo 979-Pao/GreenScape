@@ -9,6 +9,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Service
 public class AuthService {
@@ -56,6 +57,16 @@ public class AuthService {
         u.setPhone(req.getPhone());
         u.setRole(role);
         users.save(u);
+        return new UserResponse(u.getId(), u.getName(), u.getEmail(), u.getRole().name());
+    }
+
+    public UserResponse me(String usernameOrEmail) {
+                User u = users.findByEmail(usernameOrEmail)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        return mapUser(u);
+    }
+
+    private static UserResponse mapUser(User u) {
         return new UserResponse(u.getId(), u.getName(), u.getEmail(), u.getRole().name());
     }
 }

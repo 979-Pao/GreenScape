@@ -22,42 +22,22 @@ public class DataSeeder {
     private static final Logger log = LoggerFactory.getLogger(DataSeeder.class);
 
     @Bean
-    CommandLineRunner seed(UserRepository users,
-                           PlantRepository plants,
-                           BlogPostRepository blogs,        // <- repo de blog
-                           PasswordEncoder encoder) {
+    CommandLineRunner seed(
+            UserRepository users,
+            PlantRepository plants,
+            BlogPostRepository blogs,
+            PasswordEncoder encoder
+    ) {
         return args -> {
-            // Admin
-            User admin = users.findByEmail("admin@tienda.com").orElseGet(() -> {
-                User a = new User();
-                a.setName("Admin");
-                a.setEmail("admin@tienda.com");
-                a.setPassword(encoder.encode("admin123"));
-                a.setRole(Role.ADMIN);
-                return users.save(a);
-            });
+            // --- Usuarios ---
+            User admin = upsertUser(users,
+                    "admin@tienda.com", "Admin", Role.ADMIN, "admin123", encoder);
+            User client = upsertUser(users,
+                    "client@tienda.com", "Cliente Demo", Role.CLIENT, "client123", encoder);
+            User supplier = upsertUser(users,
+                    "supplier@tienda.com", "Proveedor Demo", Role.SUPPLIER, "supplier123", encoder);
 
-            // Client
-            users.findByEmail("client@tienda.com").orElseGet(() -> {
-                User c = new User();
-                c.setName("Cliente Demo");
-                c.setEmail("client@tienda.com");
-                c.setPassword(encoder.encode("client123"));
-                c.setRole(Role.CLIENT);
-                return users.save(c);
-            });
-
-            // Supplier
-            User supplier = users.findByEmail("supplier@tienda.com").orElseGet(() -> {
-                User s = new User();
-                s.setName("Proveedor Demo");
-                s.setEmail("supplier@tienda.com");
-                s.setPassword(encoder.encode("supplier123"));
-                s.setRole(Role.SUPPLIER);
-                return users.save(s);
-            });
-
-            // Plantas
+            // --- Plantas ---
             if (plants.count() == 0) {
                 List<Plant> seed = new ArrayList<>();
                 seed.add(p("Monstera deliciosa", "Monstera", "Hojas grandes, fácil de cuidar", "interior", 19.99, 25, supplier));
@@ -75,23 +55,27 @@ public class DataSeeder {
                 seed.add(p("Peperomia obtusifolia", "Peperomia", "Compacta; riego moderado", "interior", 10.60, 26, supplier));
                 seed.add(p("Hoya carnosa", "Hoya", "Cera; florece en interior", "interior", 18.90, 14, supplier));
                 seed.add(p("Zamioculcas zamiifolia", "Zamioculca (ZZ)", "Tolerante a poca luz", "interior", 21.50, 19, supplier));
-
                 plants.saveAll(seed);
             }
 
-            // Blogs
+            // --- Blog ---
             if (blogs.count() == 0) {
                 List<BlogPost> posts = new ArrayList<>();
                 posts.add(post("Guía básica de riego", "guia-basica-riego",
-                        "Aprende a regar tus plantas sin ahogarlas. Frecuencia, sustrato y señales.", PostStatus.PUBLISHED, admin));
+                        "Aprende a regar tus plantas sin ahogarlas. Frecuencia, sustrato y señales.",
+                        PostStatus.PUBLISHED, admin));
                 posts.add(post("Luz para interiores", "luz-para-interiores",
-                        "Identifica si tu planta necesita sol directo o luz indirecta brillante.", PostStatus.PUBLISHED, admin));
+                        "Identifica si tu planta necesita sol directo o luz indirecta brillante.",
+                        PostStatus.PUBLISHED, admin));
                 posts.add(post("Top 5 plantas fáciles", "top-5-plantas-faciles",
-                        "Sansevieria, Pothos, ZZ, Monstera y Drácena: por qué son ideales para empezar.", PostStatus.PUBLISHED, admin));
+                        "Sansevieria, Pothos, ZZ, Monstera y Drácena: por qué son ideales para empezar.",
+                        PostStatus.PUBLISHED, admin));
                 posts.add(post("Errores comunes de principiantes", "errores-comunes",
-                        "Demasiado riego, poca luz, macetas sin drenaje y fertilización excesiva.", PostStatus.DRAFT, admin));
+                        "Demasiado riego, poca luz, macetas sin drenaje y fertilización excesiva.",
+                        PostStatus.DRAFT, admin));
                 posts.add(post("Cómo trasplantar sin estrés", "como-trasplantar",
-                        "Paso a paso para cambiar de maceta y no dañar raíces. Herramientas y tiempos.", PostStatus.PUBLISHED, admin));
+                        "Paso a paso para cambiar de maceta y no dañar raíces. Herramientas y tiempos.",
+                        PostStatus.PUBLISHED, admin));
                 blogs.saveAll(posts);
             }
 
@@ -99,12 +83,51 @@ public class DataSeeder {
         };
     }
 
+    /** Crea o actualiza el usuario; si existe con password sin codificar, la codifica. */
+    private static User upsertUser(
+            UserRepository repo,
+            String email,
+            String name,
+            Role role,
+            String rawPassword,
+            PasswordEncoder encoder
+    ) {
+        return repo.findByEmail(email)
+                .map(u -> {
+                    // Si parece no-BCrypt, re-codificar
+                    String p = u.getPassword();
+                    if (!isBcrypt(p)) {
+                        u.setPassword(encoder.encode(rawPassword));
+                        u.setRole(role);
+                        u.setName(name);
+                        return repo.save(u);
+                    }
+                    // ya correcto
+                    return u;
+                })
+                .orElseGet(() -> {
+                    User u = new User();
+                    u.setEmail(email);
+                    u.setName(name);
+                    u.setRole(role);
+                    u.setPassword(encoder.encode(rawPassword));
+                    return repo.save(u);
+                });
+    }
+
+    /** Heurística sencilla para detectar BCrypt. */
+    private static boolean isBcrypt(String p) {
+        if (p == null) return false;
+        return p.startsWith("$2a$") || p.startsWith("$2b$") || p.startsWith("$2y$")
+                || p.startsWith("{bcrypt}$2a$") || p.startsWith("{bcrypt}$2b$") || p.startsWith("{bcrypt}$2y$");
+    }
+
     private static Plant p(String sci, String common, String desc, String category,
-                           double price, int stock, User supplier){
+                           double price, int stock, User supplier) {
         Plant plant = new Plant();
         plant.setScientificName(sci);
         plant.setCommonName(common);
-        plant.setName(sci); // alias/compat con código previo
+        plant.setName(sci); // si tienes ambos campos 'name' y 'scientificName'
         plant.setDescription(desc);
         plant.setCategory(category);
         plant.setPrice(BigDecimal.valueOf(price));
@@ -113,14 +136,16 @@ public class DataSeeder {
         return plant;
     }
 
-    private static BlogPost post(String title, String slug, String content, PostStatus status, User author){
+    private static BlogPost post(String title, String slug, String content,
+                                 PostStatus status, User author) {
         BlogPost b = new BlogPost();
         b.setTitle(title);
         b.setSlug(slug);
         b.setContent(content);
-        b.setStatus(status);          // enum PostStatus
-        b.setCreatedAt(Instant.now()); // BaseEntity.createdAt = Instant
-        b.setAuthor(author);          // si tu entidad tiene campo author
+        b.setStatus(status);
+        b.setCreatedAt(Instant.now());
+        // Quita esta línea si tu entidad BlogPost no tiene 'author'
+        b.setAuthor(author);
         return b;
     }
 }

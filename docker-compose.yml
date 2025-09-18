@@ -11,7 +11,6 @@ services:
       - "3306:3306"
     command: --default-authentication-plugin=mysql_native_password
     healthcheck:
-      # Usa CMD-SHELL y $$ para que se expanda dentro del contenedor
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$$MYSQL_ROOT_PASSWORD"]
       interval: 10s
       timeout: 5s
@@ -29,6 +28,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: app
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_PROFILES_ACTIVE: docker
+      # Para JWT si lo usas por env:
+      # SECURITY_JWT_SECRET: super-secreto-cambia-esto
     depends_on:
       db:
         condition: service_healthy
@@ -39,12 +40,17 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Se inyecta en el build de Vite (usado en import.meta.env.VITE_API_BASE_URL)
+        VITE_API_BASE_URL: http://localhost:8080
     environment:
+      # Por si en tiempo de build quieres usarla también como ENV
       VITE_API_BASE_URL: http://localhost:8080
-    ports:
-      - "5173:80"
     depends_on:
       - backend
+    ports:
+      - "5173:80"
+    # Si sirves assets estáticos, no necesitas volumes aquí
 
 volumes:
   mysql_data:
