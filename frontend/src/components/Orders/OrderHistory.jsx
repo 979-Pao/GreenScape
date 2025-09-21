@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMyOrders } from "../../api/orders";
+import { getMyOrderHistory  } from "../../api/orders";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
@@ -10,7 +10,7 @@ export default function OrderHistory() {
     try {
       setLoading(true);
       setErr(null);
-      const data = await getMyOrders(); // Espera: Array<Order>
+      const data = await getMyOrderHistory(); // Espera: Array<Order>
       setOrders(Array.isArray(data) ? data : []);
     } catch (e) {
       setErr(

@@ -3,7 +3,7 @@ export default function Hero(){
     <section className="section-hero container">
            <div className="container-img-hero">
         <div className="img-hero">
-          <img src="src/assets/images/header.plant.png" alt="Header Img" />
+          <img src="public/header.plant.png" alt="Header Img" />
         </div>
         <div className="message-float-header">
           <i className="fa-solid fa-gift"></i>

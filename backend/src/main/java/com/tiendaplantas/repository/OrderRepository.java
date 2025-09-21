@@ -11,8 +11,18 @@ import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
   Optional<Order> findByCustomerAndStatus(User customer, OrderStatus status);
+  
   List<Order> findByCustomer(User customer);
   List<Order> findDistinctByItems_Plant_Supplier_Id(Long supplierId);
+
+  // historial del cliente (sin el carrito)
+  List<Order> findByCustomerAndTypeOrderByCreatedAtDesc(User customer, OrderType type);
+
+  // todos los pedidos de clientes (ADMIN), ordenados por fecha
+  List<Order> findByTypeOrderByCreatedAtDesc(OrderType type);
+
+  // (opcional) solo estados “reales”, excluyendo CART del lado DB
+  List<Order> findByTypeAndStatusNotOrderByCreatedAtDesc(OrderType type, OrderStatus status);
 
   // admin: ver compras
   List<Order> findByType(OrderType type);

@@ -17,8 +17,8 @@ public class Order extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private OrderStatus status = OrderStatus.CART;
 
-  @OneToMany(mappedBy = "orderRef", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<OrderItem> items = new ArrayList<>();
+ @OneToMany(mappedBy = "orderRef", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+ private List<OrderItem> items = new ArrayList<>();
 
   public BigDecimal getTotal() {
     return items.stream()

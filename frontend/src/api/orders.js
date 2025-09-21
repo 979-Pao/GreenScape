@@ -8,7 +8,7 @@ export async function addToCart(plantId, quantity = 1) {
 
 /** Obtiene las órdenes (o el carrito del usuario, según tu API) */
 export async function getCart() {
-  const { data } = await api.get("/api/orders/me");
+  const { data } = await api.get("/api/orders/cart");
   return data; // List<OrderDto> (o lo que devuelva tu API)
 }
 
@@ -24,17 +24,23 @@ export async function checkout() {
   return data; // pedido creado, etc.
 }
 
-// GET /api/orders/me
-export async function getMyOrders() {
-  const { data } = await api.get("/api/orders/me");
-  return data; // Array<OrderDto>
-}
+// Historial del cliente logueado
+export const getMyOrderHistory = async () => {
+  const { data } = await api.get("/api/orders/cart/history");
+  return data;
+};
 
 // ---------- ADMIN ----------
 export async function getAdminKpis() {
   const { data } = await api.get("/api/orders/admin/kpis"); // o "/api/admin/kpis"
   return data; // { pendingOrders, todayRevenue, suppliersOpen, lowStock, ... }
 }
+
+// Listado completo (ADMIN)
+export const getAllCustomerOrders = async () => {
+  const { data } = await api.get("/api/orders");
+  return data;
+};
 
 
 

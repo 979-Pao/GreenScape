@@ -43,15 +43,4 @@ public class Plant extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   private User supplier;
-
-  // Concurrencia optimista (evita sobreventa al descontar stock)
-  @Version
-  private Long version;
-
-  @CreatedDate
-  @Column(updatable = false)
-  private Instant createdAt;
-
-  @LastModifiedDate
-  private Instant updatedAt;
 }

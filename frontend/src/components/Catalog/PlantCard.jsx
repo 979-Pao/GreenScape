@@ -2,10 +2,10 @@ import { Link } from "react-router-dom";
 
 function slugify(s = "") {
   return String(s)
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // quita acentos
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")                      // espacios y raros -> -
-    .replace(/(^-|-$)/g, "");                         // sin guiones al inicio/fin
+    .replace(/[^a-z0-9]+/g, "-")                      
+    .replace(/(^-|-$)/g, "");                         
 }
 
 export default function PlantCard({ plant, onAdd }) {

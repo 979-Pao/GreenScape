@@ -3,12 +3,11 @@ import { Link } from "react-router-dom";
 
 function Avatar({ user }) {
   const letter = (user?.name || user?.email || "?").trim().charAt(0).toUpperCase();
-  return (
-    <div className="avatar-circle" aria-hidden="true">
-      {letter}
-    </div>
-  );
+  return <div className="avatar-circle" aria-hidden="true">{letter}</div>;
 }
+
+// Normaliza un rol: "ROLE_CLIENT" -> "CLIENT"
+const normRole = (r) => String(r || "").replace(/^ROLE_/, "").toUpperCase();
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();
@@ -26,29 +25,31 @@ export default function Profile() {
     );
   }
 
-  // Normaliza roles: admite string o array
-  const rolesArr = Array.isArray(user.roles)
+  // Acepta user.role (string) o user.roles (array)
+  const rolesArrRaw = Array.isArray(user.roles)
     ? user.roles
     : (user.role ? [user.role] : []);
+  const roles = rolesArrRaw.map(normRole);
 
-  const primaryRole = (rolesArr[0] || "").toUpperCase();
-  const hasRole = (r) => rolesArr.map(x => String(x).toUpperCase()).includes(String(r).toUpperCase());
+  const hasRole = (r) => roles.includes(normRole(r));
+  const primaryRole = roles[0] || "";
+  const roleClass = `role-badge role-${primaryRole.toLowerCase()}`;
 
-  const roleClass = `role-badge role-${(primaryRole || "").toLowerCase()}`;
+  // Etiqueta más humana (opcional)
+  const roleLabel = {
+    CLIENT: "CLIENTE",
+    ADMIN: "ADMIN",
+    SUPPLIER: "PROVEEDOR",
+  }[primaryRole] || primaryRole;
 
   return (
     <section className="container" style={{ padding: "40px 0", display: "grid", gap: 24 }}>
       {/* Header del perfil */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          background: "#fff",
-          border: "1px solid #e5e7eb",
-          borderRadius: 12,
-          padding: 16,
-          boxShadow: "0 6px 20px rgba(0,0,0,.04)",
+          display: "flex", alignItems: "center", gap: 16,
+          background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12,
+          padding: 16, boxShadow: "0 6px 20px rgba(0,0,0,.04)",
         }}
       >
         <Avatar user={user} />
@@ -59,27 +60,20 @@ export default function Profile() {
           <small style={{ color: "#6b7280" }}>{user?.email || "—"}</small>
         </div>
 
-        {/* Chip de rol */}
-        {primaryRole && <span className={roleClass}>{primaryRole}</span>}
+        {primaryRole && <span className={roleClass}>{roleLabel}</span>}
       </div>
 
       {/* Detalle rápido */}
       <div
         style={{
-          display: "grid",
-          gap: 12,
-          background: "#fff",
-          border: "1px solid #e5e7eb",
-          borderRadius: 12,
-          padding: 16,
+          display: "grid", gap: 12, background: "#fff",
+          border: "1px solid #e5e7eb", borderRadius: 12, padding: 16,
         }}
       >
         <ul className="list" style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: 8 }}>
           <li><b>Nombre:</b> {user?.name || "—"}</li>
           <li><b>Email:</b> {user?.email || "—"}</li>
-          <li>
-            <b>Roles:</b> {rolesArr.length ? rolesArr.join(", ") : "—"}
-          </li>
+          <li><b>Roles:</b> {roles.length ? roles.join(", ") : "—"}</li>
         </ul>
       </div>
 
@@ -102,9 +96,11 @@ export default function Profile() {
             <Link to="/cart" className="btn" style={{ textAlign: "center" }}>
               Carrito
             </Link>
-            <Link to="/orders" className="btn ghost" style={{ textAlign: "center" }}>
+            {/* NUEVA ruta legible */}
+            <Link to="/mi-historial" className="btn ghost" style={{ textAlign: "center" }}>
               Mis pedidos
             </Link>
+            {/* Si prefieres mantener /orders, cambia a to="/orders" */}
           </>
         )}
 
@@ -121,7 +117,8 @@ export default function Profile() {
             <Link to="/admin" className="btn ghost" style={{ textAlign: "center" }}>
               KPIs
             </Link>
-            <Link to="/admin/orders" className="btn" style={{ textAlign: "center" }}>
+            {/* NUEVA ruta alias admin */}
+            <Link to="/admin/pedidos" className="btn" style={{ textAlign: "center" }}>
               Ver pedidos
             </Link>
             <Link to="/admin/purchases" className="btn" style={{ textAlign: "center" }}>

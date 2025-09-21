@@ -24,28 +24,34 @@ public class OrderController {
   }
 
   // -------- CLIENT: Carrito personal --------
-  @PreAuthorize("hasRole('CLIENT')")
+  @PreAuthorize("hasAnyRole('CLIENT','ADMIN','SUPPLIER')")
   @GetMapping("/cart")
   public OrderDto myCart(Authentication auth){
     return orders.getCart(auth.getName());
   }
 
-  @PreAuthorize("hasRole('CLIENT')")
+  @PreAuthorize("hasAnyRole('CLIENT','ADMIN','SUPPLIER')")
   @PostMapping("/cart/add")
   public OrderDto addToCart(Authentication auth, @RequestBody AddItemDto dto){
     return orders.addToCart(auth.getName(), dto.getPlantId(), dto.getQuantity());
   }
 
-  @PreAuthorize("hasRole('CLIENT')")
+  @PreAuthorize("hasAnyRole('CLIENT','ADMIN','SUPPLIER')")
   @DeleteMapping("/cart/items/{itemId}")
   public OrderDto removeFromCart(Authentication auth, @PathVariable Long itemId){
     return orders.removeFromCart(auth.getName(), itemId);
   }
 
-  @PreAuthorize("hasRole('CLIENT')")
+  @PreAuthorize("hasAnyRole('CLIENT','ADMIN','SUPPLIER')")
   @PostMapping("/cart/checkout")
   public OrderDto checkout(Authentication auth){
     return orders.checkout(auth.getName());
+  }
+
+  @PreAuthorize("hasRole('CLIENT')")
+  @GetMapping("/cart/history")
+  public List<OrderDto> myOrders(Authentication auth){
+  return orders.myOrders(auth.getName());
   }
 
   // -------- SUPPLIER: Ver pedidos de sus plantas --------
@@ -91,6 +97,12 @@ public class OrderController {
     return orders.listCustomerOrders();
   }
 
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/purchase")
+  public List<OrderDto> listPurchases() {
+    return orders.listPurchases();
+  }
+
   // ===== ADMIN: crear pedido de compra =====
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/purchase")
@@ -100,9 +112,5 @@ public class OrderController {
     return orders.createPurchaseOrder(req.getSupplierId(), req.getItems());
   }
 
-  @PreAuthorize("hasRole('ADMIN')")
-  @GetMapping("/purchase")
-  public List<OrderDto> listPurchases() {
-    return orders.listPurchases();
-  }
+ 
 }

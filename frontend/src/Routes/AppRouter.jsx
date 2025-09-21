@@ -31,24 +31,28 @@ export default function AppRouter() {
         <Route path="/register" element={<RegisterForm />} />
 
         {/* Privadas (cliente) */}
-        <Route path="/profile" // o "/perfil", pero usa SIEMPRE el mismo en toda la app
-          element={<Protected><Profile /></Protected>}/>
-        <Route path="/cart"
-          element={<Protected><CartView /></Protected>}/>
-        <Route path="/orders"
-          element={<RoleProtected roles={["CLIENT"]}><OrderHistory /></RoleProtected>}/>
-
+        <Route path="/profile" element={<Protected><Profile /></Protected>}/>
+        <Route path="/cart" element={<Protected><CartView /></Protected>} />
+        
+        {/* Ruta original de historial (si ya la usas) */}
+        <Route path="/orders" element={<RoleProtected roles={["CLIENT"]}><OrderHistory /></RoleProtected>} />
+        
+        {/* Alias legible para cliente */}
+        <Route path="/mi-historial" element={<RoleProtected roles={["CLIENT"]}><OrderHistory /></RoleProtected>}/>
+        
+        {/* (Opcional) redirección para unificar la URL */}
+        {/* <Route path="/orders" element={<Navigate to="/mi-historial" replace />} /> */}
         {/* Privadas (admin) */}
-        <Route path="/admin"
-          element={<RoleProtected roles={["ADMIN"]}><AdminDashboard /></RoleProtected>}/>
+        <Route path="/admin" element={<RoleProtected roles={["ADMIN"]}><AdminDashboard /></RoleProtected>}/>
         <Route path="/admin/orders"
           element={<RoleProtected roles={["ADMIN"]}><AdminOrders /></RoleProtected>}/>
-        <Route path="/admin/purchases"
-          element={<RoleProtected roles={["ADMIN"]}><AdminPurchases /></RoleProtected>}/>
+        {/* Alias legible para admin */}
+        <Route path="/admin/pedidos" element={<RoleProtected roles={["ADMIN"]}><AdminOrders /></RoleProtected>}/>
+        {/* (Opcional) redirección para unificar la URL */}
+        {/* <Route path="/admin/orders" element={<Navigate to="/admin/pedidos" replace />} /> */}
 
         {/* Privadas (supplier) */}
-        <Route path="/supplier/inbox"
-          element={<RoleProtected roles={["SUPPLIER"]}><SupplierInbox /></RoleProtected>}/>
+        <Route path="/supplier/inbox" element={<RoleProtected roles={["SUPPLIER"]}><SupplierInbox /></RoleProtected>}/>
 
         {/* 404 → home */}
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -56,4 +60,3 @@ export default function AppRouter() {
     </Layout>
   );
 }
-

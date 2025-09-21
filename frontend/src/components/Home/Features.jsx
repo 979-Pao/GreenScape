@@ -5,10 +5,10 @@ export default function Features(){
         <h2>Las <span>plantas</span> oxigenan nuestra vida.</h2>
       </div>
       <div className="img-1">
-        <img src="src/assets/images/Feature-2.png" alt="Image Section Features 1" />
+        <img src="public/img/Feature-2.png" alt="Image Section Features 2" />
       </div>
       <div className="img-2">
-        <img src="src/assets/images/Feature-1.png" alt="Image Section Features 2" />
+        <img src="public/img/Feature-1.png" alt="Image Section Features 1" />
         <div className="shadow"></div>
       </div>
       <div className="row-info">

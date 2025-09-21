@@ -3,7 +3,7 @@ export default function Footer(){
     <footer className="site-footer">
       <div className="section-footer container">
         <div className="footer-section-logo">
-          <img src="src/assets/images/greentree.png" alt="Logo" className="img-logo" />
+          <img src="public/greentree.png" alt="Logo" className="img-logo" />
           <p>
             Colección de plantas de interior y exterior para embellecer tu hogar y cuidar tu bienestar. Nacimos para reconectar tu vida con lo natural.
           </p>
