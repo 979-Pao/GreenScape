@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
+
+  boolean existsBySupplier_Id(Long supplierId);
+  boolean existsByCustomer_Id(Long customerId);
+
   Optional<Order> findByCustomerAndStatus(User customer, OrderStatus status);
   
   List<Order> findByCustomer(User customer);

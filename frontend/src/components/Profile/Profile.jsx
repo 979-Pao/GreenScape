@@ -86,44 +86,40 @@ export default function Profile() {
         }}
       >
         {/* Común */}
-        <Link to="/profile" className="btn" style={{ textAlign: "center" }}>
-          Editar perfil
-        </Link>
+
 
         {/* CLIENT → carrito / pedidos */}
         {hasRole("CLIENT") && (
           <>
+            <Link to="/profile" className="btn" style={{ textAlign: "center" }}>
+              Editar perfil </Link>
             <Link to="/cart" className="btn" style={{ textAlign: "center" }}>
-              Carrito
-            </Link>
+              Carrito</Link>
             {/* NUEVA ruta legible */}
             <Link to="/mi-historial" className="btn ghost" style={{ textAlign: "center" }}>
-              Mis pedidos
-            </Link>
+              Mis pedidos </Link>
             {/* Si prefieres mantener /orders, cambia a to="/orders" */}
           </>
         )}
 
         {/* SUPPLIER */}
         {hasRole("SUPPLIER") && (
-          <Link to="/supplier/inbox" className="btn" style={{ textAlign: "center" }}>
-            Pedidos prov.
-          </Link>
+         <>
+           <Link to="/api/suplier/me" className="btn" style={{ textAlign: "center" }}>
+              Editar perfil </Link>
+           <Link to="/supplier/inbox" className="btn" style={{ textAlign: "center" }}>
+            Pedidos prov. </Link>
+         </>
         )}
 
         {/* ADMIN */}
         {hasRole("ADMIN") && (
           <>
+            <Link to="/admin/me" className="btn" style={{ textAlign: "center" }}>
+             Editar perfil </Link>
             <Link to="/admin" className="btn ghost" style={{ textAlign: "center" }}>
-              KPIs
-            </Link>
-            {/* NUEVA ruta alias admin */}
-            <Link to="/admin/pedidos" className="btn" style={{ textAlign: "center" }}>
-              Ver pedidos
-            </Link>
-            <Link to="/admin/purchases" className="btn" style={{ textAlign: "center" }}>
-              Compras a proveedores
-            </Link>
+             KPIs </Link>
+
           </>
         )}
       </div>

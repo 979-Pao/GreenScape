@@ -1,0 +1,83 @@
+package com.tiendaplantas.controller;
+
+import com.tiendaplantas.dto.UserDtos;
+import com.tiendaplantas.entity.Role;
+import com.tiendaplantas.entity.User;
+import com.tiendaplantas.repository.UserRepository;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+@RestController
+@RequestMapping("/api")
+// Habilitamos método a método. Si quieres, puedes dejar un hasAnyRole aquí.
+public class ProfileController {
+
+  private final UserRepository users;
+  private final PasswordEncoder enc;
+
+  public ProfileController(UserRepository users, PasswordEncoder enc) {
+    this.users = users;
+    this.enc = enc;
+  }
+
+  // ======== Helpers ========
+  private static UserDtos.Resp toResp(User u) {
+    return new UserDtos.Resp(u.getId(), u.getName(), u.getEmail(), u.getRole(), u.getPhone());
+  }
+
+  private User assertAndLoadUser(Authentication auth, Role requiredRole) {
+    User u = users.findByEmail(auth.getName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado"));
+    if (u.getRole() != requiredRole) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permisos para esta ruta");
+    }
+    return u;
+  }
+
+  private void applyUpdates(User u, UserDtos.Update dto) {
+    if (dto.getName()  != null) u.setName(dto.getName());
+    if (dto.getPhone() != null) u.setPhone(dto.getPhone());
+    if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+      u.setPassword(enc.encode(dto.getPassword()));
+    }
+  }
+
+  // ======== CLIENT ========
+  @GetMapping("/client/me")
+  @PreAuthorize("hasRole('CLIENT')")
+  public UserDtos.Resp getClientMe(Authentication auth) {
+    User u = assertAndLoadUser(auth, Role.CLIENT);
+    return toResp(u);
+  }
+
+  @PutMapping("/client/me")
+  @PreAuthorize("hasRole('CLIENT')")
+  public UserDtos.Resp updateClientMe(Authentication auth, @Valid @RequestBody UserDtos.Update dto) {
+    User u = assertAndLoadUser(auth, Role.CLIENT);
+    applyUpdates(u, dto);
+    users.save(u);
+    return toResp(u);
+  }
+
+  // ======== SUPPLIER ========
+  @GetMapping("/supplier/me")
+  @PreAuthorize("hasRole('SUPPLIER')")
+  public UserDtos.Resp getSupplierMe(Authentication auth) {
+    User u = assertAndLoadUser(auth, Role.SUPPLIER);
+    return toResp(u);
+  }
+
+  @PutMapping("/supplier/me")
+  @PreAuthorize("hasRole('SUPPLIER')")
+  public UserDtos.Resp updateSupplierMe(Authentication auth, @Valid @RequestBody UserDtos.Update dto) {
+    User u = assertAndLoadUser(auth, Role.SUPPLIER);
+    applyUpdates(u, dto);
+    users.save(u);
+    return toResp(u);
+  }
+}

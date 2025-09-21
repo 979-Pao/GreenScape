@@ -13,13 +13,11 @@ export async function me() {
   return data; // user
 }
 
-export async function logout() {
-  try {
-    await api.post("/api/auth/logout");
-  } catch (err) {
-    if (import.meta?.env?.DEV) console.warn("logout() falló:", err?.response?.status, err?.message);
-  } finally {
-    // MUY IMPORTANTE: quita el Authorization por si estaba seteado por defecto
-    delete api.defaults.headers.common.Authorization;
-  }
+export function logout(redirectTo = "/login") {
+  // 1) borra token/sesion local
+  localStorage.removeItem("auth");
+  // 2) (opcional) por si en algún lado seteaste un default
+  delete api.defaults.headers?.common?.Authorization;
+  // 3) redirige
+  window.location.assign(redirectTo); // o usa navigate()
 }

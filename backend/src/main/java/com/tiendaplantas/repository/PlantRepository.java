@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.List;
 
 public interface PlantRepository extends JpaRepository<Plant, Long>, JpaSpecificationExecutor<Plant> {
-
+    boolean existsBySupplier_Id(Long supplierId);
     // EXISTENTES (no se tocan)
     List<Plant> findByNameContainingIgnoreCaseOrCategoryContainingIgnoreCase(String name, String category);
     List<Plant> findBySupplier_Id(Long supplierId);

@@ -47,7 +47,7 @@ public class OrderService {
     return toDto(cart);
   }
 
-  // ✅ ESTE ES addToCart (antes tenías un checkout mal pegado)
+  // Añadir al carrito
   public OrderDto addToCart(String email, Long plantId, int qty){
     if (qty <= 0) qty = 1;
 
@@ -86,7 +86,7 @@ public class OrderService {
     return toDto(cart);
   }
 
-  // ✅ ÚNICO checkout (deja solo este)
+  // Checkout de carrito (venta a cliente)
   public OrderDto checkout(String email){
     Order cart = getOrCreateCart(email);
     var itemsList = (cart.getItems() == null) ? List.<OrderItem>of() : cart.getItems();
@@ -105,7 +105,7 @@ public class OrderService {
       plants.save(plant);
     });
 
-    cart.setType(OrderType.CUSTOMER);  
+    cart.setType(OrderType.CUSTOMER);
     cart.setStatus(OrderStatus.PAID);
     if (cart.getCreatedAt() == null) cart.setCreatedAt(Instant.now());
     orders.save(cart);
@@ -115,13 +115,13 @@ public class OrderService {
     newCart.setCustomer(cart.getCustomer());
     newCart.setStatus(OrderStatus.CART);
     newCart.setType(OrderType.CUSTOMER);
-    newCart.setItems(new ArrayList<>()); // 👈 evita NPE si la entidad no inicializa
+    newCart.setItems(new ArrayList<>());
     orders.save(newCart);
 
     return toDto(cart); // devolvemos el pedido pagado
   }
 
-  // ADMIN crea un pedido de compra a un proveedor
+  // ADMIN: crear pedido de compra a proveedor (PO)
   public OrderDto createPurchaseOrder(Long supplierId,
       List<PurchaseDtos.CreatePurchaseRequest.Item> itemsReq) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -166,6 +166,7 @@ public class OrderService {
     return toDto(po);
   }
 
+  // Bandeja de proveedor
   public List<OrderDto> supplierInbox(Long supplierId) {
     return orders.findBySupplier_IdAndType(supplierId, OrderType.PURCHASE)
         .stream().map(this::toDto).toList();
@@ -198,6 +199,7 @@ public class OrderService {
     }
   }
 
+  // Consultas
   public List<OrderDto> findOrdersForSupplier(Long supplierId){
     List<Order> list = orders.findDistinctByItems_Plant_Supplier_Id(supplierId);
     return list.stream().map(this::toDto).toList();
@@ -208,23 +210,82 @@ public class OrderService {
   }
 
   public List<OrderDto> myOrders(String email){
-  User u = users.findByEmail(email).orElseThrow();
-  return orders.findByCustomerAndTypeOrderByCreatedAtDesc(u, OrderType.CUSTOMER)
-      .stream()
-      .filter(o -> o.getStatus() != OrderStatus.CART) // fuera el carrito
-      .map(this::toDto)
-      .toList();
+    User u = users.findByEmail(email).orElseThrow();
+    return orders.findByCustomerAndTypeOrderByCreatedAtDesc(u, OrderType.CUSTOMER)
+        .stream()
+        .filter(o -> o.getStatus() != OrderStatus.CART)
+        .map(this::toDto)
+        .toList();
   }
 
   public List<OrderDto> listCustomerOrders(){ // ADMIN
-  return orders.findByTypeAndStatusNotOrderByCreatedAtDesc(OrderType.CUSTOMER, OrderStatus.CART)
-      .stream()
-      .map(this::toDto)
-      .toList();
+    return orders.findByTypeAndStatusNotOrderByCreatedAtDesc(OrderType.CUSTOMER, OrderStatus.CART)
+        .stream()
+        .map(this::toDto)
+        .toList();
   }
 
   public List<OrderDto> listPurchases() {
     return orders.findByType(OrderType.PURCHASE).stream().map(this::toDto).toList();
+  }
+
+  // ======= MÉTODOS ADMIN (status/borrado de compras) =======
+
+  public OrderDto adminUpdatePurchaseStatus(Long id, OrderStatus newStatus) {
+    if (newStatus == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado destino requerido");
+    }
+
+    Order po = orders.findById(id).orElseThrow();
+    if (po.getType() != OrderType.PURCHASE) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No es un pedido de COMPRA");
+    }
+
+    OrderStatus current = po.getStatus();
+    if (current == newStatus) return toDto(po);
+
+    // Reglas de transición
+    boolean allowed = switch (current) {
+      case NEW      -> (newStatus == OrderStatus.ACCEPTED || newStatus == OrderStatus.CANCELED);
+      case ACCEPTED -> (newStatus == OrderStatus.COMPLETED || newStatus == OrderStatus.CANCELED);
+      default       -> false;
+    };
+
+    if (!allowed) {
+      throw new ResponseStatusException(
+        HttpStatus.CONFLICT, "Transición no permitida: " + current + " → " + newStatus
+      );
+    }
+
+    // (OPCIONAL) entrada de stock al COMPLETED
+    if (newStatus == OrderStatus.COMPLETED && po.getItems() != null) {
+      for (OrderItem it : po.getItems()) {
+        Plant plant = it.getPlant();
+        Integer cur = plant.getStock() == null ? 0 : plant.getStock();
+        plant.setStock(cur + it.getQuantity());
+        plants.save(plant);
+      }
+    }
+
+    po.setStatus(newStatus);
+    orders.save(po);
+    return toDto(po);
+  }
+
+  public void adminDeletePurchase(Long id) {
+    Order po = orders.findById(id).orElseThrow();
+    if (po.getType() != OrderType.PURCHASE) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No es un pedido de COMPRA");
+    }
+
+    // Solo se puede borrar NEW o CANCELED
+    if (!(po.getStatus() == OrderStatus.NEW || po.getStatus() == OrderStatus.CANCELED)) {
+      throw new ResponseStatusException(
+        HttpStatus.CONFLICT, "Solo se pueden eliminar compras en estado NEW o CANCELED"
+      );
+    }
+
+    orders.delete(po);
   }
 
   public List<OrderDto> listPurchasesForSupplier(Long supplierId) {
@@ -240,7 +301,7 @@ public class OrderService {
       Order o = new Order();
       o.setCustomer(u);
       o.setStatus(OrderStatus.CART);
-      o.setItems(new ArrayList<>());  // 👈 evita NPE si la entidad no inicializa
+      o.setItems(new ArrayList<>());  // evita NPE si la entidad no inicializa
       return orders.save(o);
     });
   }

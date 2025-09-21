@@ -89,9 +89,6 @@ export default function ProfileMenu({ user, signOut }) {
           )}
           {user?.role === "ADMIN" && (
             <>
-              <Link to="/admin/purchases" className="dropdown-item" role="menuitem" onClick={closeAnd()}>
-                <i className="fa-solid fa-clipboard-list" /> Compras
-              </Link>
               <Link to="/admin" className="dropdown-item" role="menuitem" onClick={closeAnd()}>
                 <i className="fa-solid fa-chart-line" /> Panel
               </Link>

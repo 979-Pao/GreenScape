@@ -1,45 +1,70 @@
 import api from "./http";
 
-export async function getAdminKpis() {
-  if (api) {
-    await new Promise(r=>setTimeout(r, 200));
-    return { pendingOrders: 5, todayRevenue: 243.60, suppliersOpen: 2, lowStock: 7 };
-  }
-  const { data } = await api.get("/api/orders");
-  return data;
-}
+/* ===================== KPIs / REPORTS ===================== */
+export const getAdminKpis = () =>
+  api.get("/api/admin/reports/overview").then(r => r.data);
 
-export async function getAllOrders({ status="", page=0, size=10 } = {}) {
-  if (api) {
-    await new Promise(r=>setTimeout(r, 250));
-    const list = Array.from({length: 23}).map((_,i)=>({
-      id: 500+i, createdAt: new Date(Date.now()-i*3600000).toISOString(),
-      status: ["PENDING","PAID","SHIPPED"][i%3], total: 20+i
-    }));
-    return {
-      content: status ? list.filter(o=>o.status===status) : list,
-      number: page, size, totalElements: list.length,
-      totalPages: Math.ceil(list.length/size), first: page===0, last: page>=Math.ceil(list.length/size)-1
-    };
-  }
-  const { data } = await api.get("/api/orders", { params: { status, page, size } });
-  return data; // Page<OrderDto>
-}
+/* ===================== ORDERS (ventas a clientes) ===================== */
+// Tu backend devuelve List<OrderDto> (no paginado)
+export const getAllOrders = () =>
+  api.get("/api/admin/orders").then(r => r.data);
 
-export async function getAdminPurchases({ status="", page=0, size=10 } = {}) {
-  if (api) {
-    await new Promise(r=>setTimeout(r, 250));
-    const list = Array.from({length: 12}).map((_,i)=>({
-      id: 900+i, supplierName: ["GreenCo","Flora SA","Vivero Zeta"][i%3],
-      status: ["OPEN","SENT","RECEIVED"][i%3],
-      total: 100 + i*10, createdAt: new Date(Date.now()-i*7200000).toISOString()
-    }));
-    return {
-      content: status ? list.filter(o=>o.status===status) : list,
-      number: page, size, totalElements: list.length,
-      totalPages: Math.ceil(list.length/size), first: page===0, last: page>=Math.ceil(list.length/size)-1
-    };
-  }
-  const { data } = await api.get("/api/orders/purchases", { params: { status, page, size } });
-  return data; // Page<PurchaseDto>
-}
+/* ===================== PURCHASE ORDERS (compras a proveedores) ===================== */
+// List<OrderDto> (tipo PURCHASE)
+export const adminListPurchases = () =>
+  api.get("/api/admin/orders/purchases").then(r => r.data);
+
+// Crear PO: { supplierId, items:[{ plantId, quantity }] }
+export const adminCreatePurchase = (payload) =>
+  api.post("/api/admin/orders/purchases", payload).then(r => r.data);
+
+// Cambiar estado: ?status=NEW|ACCEPTED|COMPLETED|CANCELED
+export const adminSetPOStatus = (id, status) =>
+  api.put(`/api/admin/orders/purchases/${id}/status`, null, { params: { status } })
+     .then(r => r.data);
+
+// Eliminar PO (sólo NEW/CANCELED según tu regla)
+export const adminDeletePurchase = (id) =>
+  api.delete(`/api/admin/orders/purchases/${id}`);
+
+/* ===================== PLANTS ===================== */
+export const adminCreatePlant = (payload) =>
+  api.post("/api/admin/plants", payload).then(r => r.data);
+
+export const adminUpdatePlant = (id, payload) =>
+  api.put(`/api/admin/plants/${id}`, payload).then(r => r.data);
+
+export const adminDeletePlant = (id) =>
+  api.delete(`/api/admin/plants/${id}`).then(r => r.data);
+
+export const listPlants = (params = {}) =>
+  api.get("/api/admin/plants", { params }).then(r => r.data);
+
+/* ===================== USERS (clientes & proveedores) ===================== */
+export const adminListUsers = (role /* optional */) =>
+  api.get("/api/admin/users", { params: role ? { role } : {} }).then(r => r.data);
+
+export const adminCreateUser = (payload) =>
+  api.post("/api/admin/users", payload).then(r => r.data);
+
+export const adminUpdateUser = (id, payload) =>
+  api.put(`/api/admin/users/${id}`, payload).then(r => r.data);
+
+export const adminDeleteUser = (id) =>
+  api.delete(`/api/admin/users/${id}`).then(r => r.data);
+
+export const adminUpdateMe = (payload) =>
+  api.put("/api/admin/users/me", payload).then(r => r.data);
+
+/* ===================== BLOG ===================== */
+export const adminCreatePost = (payload) =>
+  api.post("/api/admin/blog", payload).then(r => r.data);
+
+export const adminUpdatePost = (id, payload) =>
+  api.put(`/api/admin/blog/${id}`, payload).then(r => r.data);
+
+export const adminDeletePost = (id) =>
+  api.delete(`/api/admin/blog/${id}`).then(r => r.data);
+
+export const listPosts = (params = {}) =>
+  api.get("/api/admin/blog", { params }).then(r => r.data)
