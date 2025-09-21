@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { adminCreatePlant } from "../../../api/admin";
+import AdminTopbar from "../AdminTopbar";
 
 export default function AdminPlantForm(){
   const [form, setForm] = useState({
@@ -23,6 +24,8 @@ export default function AdminPlantForm(){
 
   return (
     <form className="card" onSubmit={onSubmit}>
+
+       <AdminTopbar backTo="/admin/plants"/> 
       <h3>Nueva planta</h3>
       <input placeholder="Nombre científico" value={form.scientificName} onChange={set("scientificName")} required />
       <input placeholder="Nombre común" value={form.commonName} onChange={set("commonName")} required />

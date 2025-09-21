@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { adminListUsers, adminDeleteUser } from "../../api/admin";
 import Pagination from "../Common/Pagination";
+import AdminTopbar from "../Admin/AdminTopbar";
 
 const ROLES = ["CLIENT", "SUPPLIER", "ADMIN"];
 
@@ -58,7 +59,7 @@ export default function UsersList() {
       <h2 className="title" style={{ color: "var(--green-medium)" }}>
         Usuarios {role ? `(${role})` : ""}
       </h2>
-
+      <AdminTopbar toNew="/admin/users/new" newLabel="Agregar usuario" />
       {loading && <p>Cargando...</p>}
       {err && <p style={{ color: "#b42318" }}>{err}</p>}
 

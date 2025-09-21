@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { listPosts, adminDeletePost } from "../../api/admin";
 import Pagination from "../Common/Pagination";
 import DateRange from "../Common/DateRange";
+import AdminTopbar from "../Admin/AdminTopbar";
 
 const STATUSES = ["DRAFT", "PUBLISHED", "ARCHIVED"];
 
@@ -60,6 +61,7 @@ useEffect(() => { setPage(1); }, [q, status, start, end]);
 return (
 <section className="container" style={{ padding: "24px 0" }}>
 <h2 className="title" style={{ color: "var(--green-medium)" }}>Blog</h2>
+<AdminTopbar toNew="/admin/blog/new" newLabel="Nueva entrada" />
 {loading && <p>Cargando...</p>}
 {err && <p style={{ color: "#b42318" }}>{err}</p>}
 

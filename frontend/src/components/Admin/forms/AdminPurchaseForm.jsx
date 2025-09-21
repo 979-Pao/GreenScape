@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { adminCreatePurchase } from "../../../api/admin";
+import AdminTopbar from "../AdminTopbar";
 
 export default function AdminPurchaseForm(){
   const [supplierId, setSupplierId] = useState("");
@@ -23,6 +24,7 @@ export default function AdminPurchaseForm(){
 
   return (
     <form className="card" onSubmit={onSubmit}>
+      <AdminTopbar backTo="/admin/purchases"/>
       <h3>Nuevo pedido a proveedor</h3>
       <input type="number" placeholder="Supplier ID" value={supplierId} onChange={e=>setSupplierId(e.target.value)} required />
       <div className="grid gap-2">

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { listPlants, adminDeletePlant } from "../../api/admin"; // 👈 cambio
 import Pagination from "../Common/Pagination";
+import AdminTopbar from "../Admin/AdminTopbar";
 
 export default function PlantsList() {
   const [rows, setRows] = useState([]);
@@ -64,6 +65,7 @@ export default function PlantsList() {
   return (
     <section className="container" style={{ padding: "24px 0" }}>
       <h2 className="title" style={{ color: "var(--green-medium)" }}>Plantas</h2>
+      <AdminTopbar toNew="/admin/plants/new" newLabel="Agregar planta" />
       {loading && <p>Cargando...</p>}
       {err && <p style={{ color: "#b42318" }}>{err}</p>}
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { adminCreateUser } from "../../../api/admin";
+import AdminTopbar from "../AdminTopbar";
 
 export default function AdminUserForm(){
   const [params] = useSearchParams();
@@ -16,6 +17,7 @@ export default function AdminUserForm(){
 
   return (
     <form className="card" onSubmit={onSubmit}>
+      <AdminTopbar backTo="/admin/users"/>
       <h3>Nuevo usuario</h3>
       <input placeholder="Nombre" value={form.name} onChange={set("name")} required />
       <input type="email" placeholder="Email" value={form.email} onChange={set("email")} required />
