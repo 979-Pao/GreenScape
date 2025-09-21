@@ -73,7 +73,7 @@ public class PlantController {
   // GET /api/plants/page?page=0&size=12&sort=price,asc&q=monstera
   @GetMapping("/page")
   public Page<PlantResponse> listPaged(@RequestParam(name = "q", required = false) String q,
-                                       Pageable pageable){
+          Pageable pageable){
     return plants.listPaged(q, pageable).map(PlantController::toResp);
   }
 

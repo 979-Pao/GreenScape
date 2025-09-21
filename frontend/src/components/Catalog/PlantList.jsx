@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getPlantsPaged } from "../../api/plants";
 import { addToCart } from "../../api/orders";
 import PlantCard from "./PlantCard";
@@ -12,20 +12,22 @@ export default function PlantList(){
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
 
-  const load = useCallback(async () => {
-    try {
-      const res = await getPlantsPaged({ query, page, size });
-      setData(res);
-      setError("");
-    } catch (err) {
-      console.error(err);
-      setError("No se pudo cargar el catálogo.");
-    }
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await getPlantsPaged({ q: query, page, size });
+        if (alive) { setData(res); setError(""); }
+      } catch (err) {
+        console.error(err);
+        if (alive) setError("No se pudo cargar el catálogo.");
+      }
+    })();
+    return () => { alive = false; };
   }, [query, page, size]);
 
-  useEffect(() => { load(); }, [load]);
-
-  const onSearch = () => { setPage(0); load(); };
+  // al buscar, vuelve a la página 0; el efecto dispara solo
+  const onSearch = () => { setPage(0); };
 
   const handleAdd = async (plantId) => {
     try {
