@@ -1,8 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "../components/Layout/Layout";
 import Home from "../components/Home/Home";
-import PlantList from "../components/Catalog/PlantList";
-import PublicBlogList from "../components/Blog/BlogList";
+
 import BlogPost from "../components/Blog/BlogPost";
 import AdminBlogList from "../components/Pages/BlogList";
 import LoginForm from "../components/Auth/LoginForm";
@@ -26,6 +25,9 @@ import SupplierProfileForm from "../components/Profile/SupplierProfileForm";
 import AdminPlantsList from "../components/Pages/PlantsList";
 import AdminUsersList from "../components/Pages/UsersList";
 import AdminPurchasesList from "../components/Pages/PurchasesList";
+import BlogPage from "../components/Pages/BlogPage";
+import PlantPage from "../components/Pages/PlantPage";
+import PlantList from "../components/Catalog/PlantList";
 
 export default function AppRouter() {
   return (
@@ -33,8 +35,9 @@ export default function AppRouter() {
       <Routes>
         {/* Públicas */}
         <Route path="/" element={<Home />} />
-        <Route path="/tienda" element={<PlantList />} />
-        <Route path="/blog" element={<PublicBlogList />} />
+        <Route path="/tienda" element={<PlantList/>} />
+        <Route path="/plants/:id" element={<PlantPage />} />
+        <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<LoginForm />} />

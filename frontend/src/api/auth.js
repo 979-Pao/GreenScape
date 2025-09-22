@@ -7,6 +7,10 @@ export async function login(email, password) {
   return { token, user: data?.user ?? null, raw: data };
 }
 
+export async function register({ name, email, password }) {
+  const { data } = await api.post("/api/auth/register", { name, email, password });
+  return data; // { token, user }
+}
 
 export async function me() {
   const { data } = await api.get("/api/auth/me");

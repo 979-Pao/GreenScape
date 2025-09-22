@@ -77,10 +77,10 @@ export default function PurchasesList() {
 
   return (
     <section className="container" style={{ padding: "24px 0" }}>
-      <h2 className="title" style={{ color: "var(--green-medium)" }}>Pedidos / Compras</h2>
+      <h2 className="title" style={{ color: "var(--green-medium)" }}>Ventas / Compras</h2>
       <AdminTopbar toNew="/admin/purchase/new" newLabel="Nueva compra a proveedor" />
       <div style={{display: "flex", gap: 8, marginBottom: 12}}>
-        <button className="btn" aria-pressed={tab==='orders'} onClick={()=>setTab('orders')}>Pedidos (clientes)</button>
+        <button className="btn" aria-pressed={tab==='orders'} onClick={()=>setTab('orders')}>Ventas (clientes)</button>
         <button className="btn" aria-pressed={tab==='purchases'} onClick={()=>setTab('purchases')}>Compras (proveedores)</button>
       </div>
 

@@ -1,58 +1,57 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/http";
-import { login as apiLogin, me as apiMe, logout as apiLogout } from "../api/auth";
+import { login as apiLogin, me as apiMe, logout as apiLogout, register as apiRegister,} from "../api/auth";
 
 const AuthContext = createContext(null);
 
-// eslint-disable-next-line react-refresh/only-export-components
-export function useAuth() {
-  return useContext(AuthContext);
-}
+// Hook
+export const useAuth = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }) {
   const navigate = useNavigate();
 
+  // ===== estado inicial desde localStorage + header =====
   const [auth, setAuth] = useState(() => {
     try {
       const raw = localStorage.getItem("auth");
-      const parsed = raw ? JSON.parse(raw) : { token: null, user: null };
+      const parsed = raw ? JSON.parse(raw) : null;
       if (parsed?.token) {
         api.defaults.headers.common.Authorization = `Bearer ${parsed.token}`;
       }
       return parsed;
     } catch {
-      return { token: null, user: null };
+      return null;
     }
   });
 
   const [booting, setBooting] = useState(true);
 
+  // ===== persistencia en localStorage =====
+  useEffect(() => {
+    if (auth?.token) localStorage.setItem("auth", JSON.stringify(auth));
+    else localStorage.removeItem("auth");
+  }, [auth]);
+
+  // ===== bootstrap: si hay token, refrescar user con /me =====
   useEffect(() => {
     let alive = true;
 
     (async () => {
-      // ⚠️ Si no hay token, termina el boot correctamente
       if (!auth?.token) {
-        if (alive) setBooting(false);
+        setBooting(false);
         return;
       }
-
       try {
         api.defaults.headers.common.Authorization = `Bearer ${auth.token}`;
         const user = await apiMe();
         if (!alive) return;
-        const next = { token: auth.token, user };
-        setAuth(next);
-        localStorage.setItem("auth", JSON.stringify(next));
-      } catch (err) {
-        if (import.meta.env.DEV) {
-          console.warn("me() 403/401, limpiando sesión:", err?.response?.status);
-        }
+        setAuth({ token: auth.token, user });
+      } catch {
         if (!alive) return;
         delete api.defaults.headers.common.Authorization;
         localStorage.removeItem("auth");
-        setAuth({ token: null, user: null });
+        setAuth(null);
       } finally {
         if (alive) setBooting(false);
       }
@@ -64,7 +63,21 @@ export default function AuthProvider({ children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // solo al montar
 
-  // LOGIN con JWT { token, user? }
+  // ===== helpers =====
+  const getUserRolesUpper = (user) => {
+    if (!user) return [];
+    if (Array.isArray(user.roles)) return user.roles.map((r) => String(r).toUpperCase());
+    if (user.role) return [String(user.role).toUpperCase()];
+    return [];
+  };
+
+  const goHomeByRole = (user) => {
+    const roles = getUserRolesUpper(user);
+    if (roles.includes("ADMIN")) navigate("/admin", { replace: true });
+    else navigate("/client/me", { replace: true }); // o "/profile"
+  };
+
+  // ===== acciones =====
   const signIn = async (email, password) => {
     const { token, user: userFromLogin } = await apiLogin(email, password);
     if (!token) throw new Error("El backend no devolvió token en /login");
@@ -73,47 +86,59 @@ export default function AuthProvider({ children }) {
     const user = userFromLogin ?? (await apiMe());
 
     const next = { token, user };
-    localStorage.setItem("auth", JSON.stringify(next));
     setAuth(next);
-
-    const roles = (user?.roles || []).map((r) => String(r).toUpperCase());
-    navigate(roles.includes("ADMIN") ? "/admin" : "/profile", { replace: true });
+    localStorage.setItem("auth", JSON.stringify(next));
+    goHomeByRole(user);
+    return user;
   };
 
-  // LOGOUT: limpia primero el front y llama al back en background
-  const doLogout = () => {
+  const signUp = async (name, email, password) => {
+    const { token, user: userFromRegister } = await apiRegister({ name, email, password });
+    if (!token) throw new Error("El backend no devolvió token en /register");
+
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+    const user = userFromRegister ?? (await apiMe());
+
+    const next = { token, user };
+    setAuth(next);
+    localStorage.setItem("auth", JSON.stringify(next));
+    goHomeByRole(user);
+    return user;
+  };
+
+  const signOut = () => {
     delete api.defaults.headers.common.Authorization;
     localStorage.removeItem("auth");
-    setAuth({ token: null, user: null });
+    setAuth(null);
     navigate("/login", { replace: true });
-
-    // notificar al backend sin bloquear el flujo
     apiLogout?.().catch(() => {
       if (import.meta.env.DEV) console.warn("logout() falló (ignorado)");
     });
   };
 
-  const hasRole = (role) => {
-    const roles = Array.isArray(auth.user?.roles)
-      ? auth.user.roles.map((r) => String(r).toUpperCase())
-      : auth.user?.role
-      ? [String(auth.user.role).toUpperCase()]
-      : [];
-    return roles.includes(String(role).toUpperCase());
+  const hasRole = (roles) => {
+    const userRoles = getUserRolesUpper(auth?.user);
+    if (!roles || (Array.isArray(roles) && roles.length === 0)) return true;
+    const wanted = Array.isArray(roles) ? roles : [roles];
+    const wantedUpper = wanted.map((r) => String(r).toUpperCase());
+    return wantedUpper.some((r) => userRoles.includes(r));
   };
 
   const value = useMemo(
     () => ({
-      ...auth, // { token, user }
-      isAuthenticated: !!auth.token && !!auth.user,
+      auth,
+      user: auth?.user || null,
+      token: auth?.token || null,
+      isAuthenticated: !!auth?.token && !!auth?.user,
       signIn,
-      signOut: doLogout,
+      signUp,
+      signOut,
       hasRole,
     }),
     [auth]
   );
 
-  if (booting) return null; // aquí puedes mostrar un spinner global
+  if (booting) return null; // aquí puedes poner un spinner global
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

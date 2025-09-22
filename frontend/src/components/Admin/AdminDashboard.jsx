@@ -66,7 +66,7 @@ export default function AdminDashboard() {
     alignItems: "center",
     justifyContent: "space-between",
     gap: 12,
-    background: "#111",
+    background: "#375b41ff",
     color: "#fff",
     borderRadius: 10,
     padding: "12px 16px",
@@ -106,7 +106,7 @@ export default function AdminDashboard() {
       {/* LISTAR (para modificar) con tarjetas negras */}
       <details open style={{ background:"#f6f6f6", borderRadius:12, padding:12 }}>
         <summary style={{ cursor:"pointer", fontWeight:700, color:"var(--green-medium)" }}>
-          LISTAR (para modificar)
+           LISTADOS EDICION
         </summary>
 
         <nav style={{ ...wrap, marginTop: 12 }}>
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
           </Link>
 
           <Link style={item} to="/admin/purchases">
-            <span><span style={icon}>🚚</span> &nbsp; Pedidos/Compras</span>
+            <span><span style={icon}>🚚</span> &nbsp; Ventas/Compras</span>
             <span>➜</span>
           </Link>
         </nav>

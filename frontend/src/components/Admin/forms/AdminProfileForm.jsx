@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { adminUpdateMe } from "../../../api/admin";
+import AdminTopbar from "../AdminTopbar";
 
 export default function AdminProfileForm(){
   const [form, setForm] = useState({ name:"", phone:"", password:"" });
@@ -11,6 +12,8 @@ export default function AdminProfileForm(){
   };
   return (
     <form className="card" onSubmit={onSubmit}>
+
+     <AdminTopbar backTo="/profile"/> 
       <h3>Editar mi perfil (Admin)</h3>
       <input placeholder="Nombre" value={form.name} onChange={set("name")} />
       <input placeholder="Teléfono" value={form.phone} onChange={set("phone")} />

@@ -37,7 +37,7 @@ export default function PlantsList() {
   const onDelete = async (id) => {
     if (!window.confirm("¿Eliminar planta? Esta acción no se puede deshacer.")) return;
     try {
-      await adminDeletePlant(id);      // 👈 cambio
+      await adminDeletePlant(id);      
       fetchData();
     } catch (e) {
       alert(e?.response?.data?.message || e?.message);
