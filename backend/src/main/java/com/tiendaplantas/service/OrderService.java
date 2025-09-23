@@ -25,6 +25,7 @@ import java.util.List;
 @Transactional
 public class OrderService {
   private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+
   private final OrderRepository orders;
   private final OrderItemRepository items;
   private final UserRepository users;
@@ -40,14 +41,13 @@ public class OrderService {
     this.plants = plants;
   }
 
-  // ======= API usada por el Controller =======
+  // ===================== API pública (carrito / cliente) =====================
 
   public OrderDto getCart(String customerEmail){
     Order cart = getOrCreateCart(customerEmail);
     return toDto(cart);
   }
 
-  // Añadir al carrito
   public OrderDto addToCart(String email, Long plantId, int qty){
     if (qty <= 0) qty = 1;
 
@@ -56,7 +56,6 @@ public class OrderService {
 
     Plant plant = plants.findById(plantId).orElseThrow();
 
-    // si ya existe línea, acumula; si no, crea nueva
     OrderItem line = cart.getItems().stream()
         .filter(i -> i.getPlant().getId().equals(plantId))
         .findFirst()
@@ -71,7 +70,6 @@ public class OrderService {
         });
 
     line.setQuantity(line.getQuantity() + qty);
-
     orders.save(cart);
     return toDto(cart);
   }
@@ -86,7 +84,6 @@ public class OrderService {
     return toDto(cart);
   }
 
-  // Checkout de carrito (venta a cliente)
   public OrderDto checkout(String email){
     Order cart = getOrCreateCart(email);
     var itemsList = (cart.getItems() == null) ? List.<OrderItem>of() : cart.getItems();
@@ -98,7 +95,7 @@ public class OrderService {
       int q = it.getQuantity();
       if (plant.getStock() == null || plant.getStock() < q) {
         log.warn("⚠️ Sin stock: plantId={}, requested={}, available={}",
-                 plant.getId(), q, plant.getStock());
+            plant.getId(), q, plant.getStock());
         throw new IllegalStateException("Sin stock para: " + plant.getCommonName());
       }
       plant.setStock(plant.getStock() - q);
@@ -110,7 +107,7 @@ public class OrderService {
     if (cart.getCreatedAt() == null) cart.setCreatedAt(Instant.now());
     orders.save(cart);
 
-    // nuevo carrito vacío
+    // crear nuevo carrito
     Order newCart = new Order();
     newCart.setCustomer(cart.getCustomer());
     newCart.setStatus(OrderStatus.CART);
@@ -118,12 +115,13 @@ public class OrderService {
     newCart.setItems(new ArrayList<>());
     orders.save(newCart);
 
-    return toDto(cart); // devolvemos el pedido pagado
+    return toDto(cart);
   }
 
-  // ADMIN: crear pedido de compra a proveedor (PO)
+  // ===================== Compras a proveedores (ADMIN) =====================
+
   public OrderDto createPurchaseOrder(Long supplierId,
-      List<PurchaseDtos.CreatePurchaseRequest.Item> itemsReq) {
+                                      List<PurchaseDtos.CreatePurchaseRequest.Item> itemsReq) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     if (auth == null || auth.getName() == null) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No authenticated admin");
@@ -134,6 +132,7 @@ public class OrderService {
 
     User supplier = users.findById(supplierId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found: id=" + supplierId));
+
     if (itemsReq == null || itemsReq.isEmpty()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Items list is empty");
     }
@@ -143,6 +142,7 @@ public class OrderService {
     po.setStatus(OrderStatus.NEW);
     po.setSupplier(supplier);
     po.setCustomer(admin);
+    po.setItems(new ArrayList<>());
 
     for (var itReq : itemsReq) {
       Plant plant = plants.findById(itReq.getPlantId())
@@ -166,7 +166,6 @@ public class OrderService {
     return toDto(po);
   }
 
-  // Bandeja de proveedor
   public List<OrderDto> supplierInbox(Long supplierId) {
     return orders.findBySupplier_IdAndType(supplierId, OrderType.PURCHASE)
         .stream().map(this::toDto).toList();
@@ -175,7 +174,8 @@ public class OrderService {
   public OrderDto acceptPurchase(Long orderId, Long supplierId) {
     Order po = orders.findById(orderId).orElseThrow();
     validateSupplierOwnership(po, supplierId);
-    if (po.getStatus() != OrderStatus.NEW) throw new IllegalStateException("Solo pedidos NEW pueden aceptarse");
+    if (po.getStatus() != OrderStatus.NEW)
+      throw new IllegalStateException("Solo pedidos NEW pueden aceptarse");
     po.setStatus(OrderStatus.ACCEPTED);
     orders.save(po);
     log.info("✅ PO {} aceptado por supplierId={}", orderId, supplierId);
@@ -185,7 +185,8 @@ public class OrderService {
   public OrderDto completePurchase(Long orderId, Long supplierId) {
     Order po = orders.findById(orderId).orElseThrow();
     validateSupplierOwnership(po, supplierId);
-    if (po.getStatus() != OrderStatus.ACCEPTED) throw new IllegalStateException("Solo pedidos ACCEPTED pueden completarse");
+    if (po.getStatus() != OrderStatus.ACCEPTED)
+      throw new IllegalStateException("Solo pedidos ACCEPTED pueden completarse");
     po.setStatus(OrderStatus.COMPLETED);
     orders.save(po);
     log.info("🏁 PO {} completado por supplierId={}", orderId, supplierId);
@@ -193,13 +194,16 @@ public class OrderService {
   }
 
   private void validateSupplierOwnership(Order po, Long supplierId){
-    if (po.getType() != OrderType.PURCHASE) throw new IllegalArgumentException("No es un pedido de compra");
+    if (po.getType() != OrderType.PURCHASE) {
+      throw new IllegalArgumentException("No es un pedido de compra");
+    }
     if (po.getSupplier()==null || !po.getSupplier().getId().equals(supplierId)) {
       throw new SecurityException("Pedido no pertenece a este proveedor");
     }
   }
 
-  // Consultas
+  // ===================== Consultas =====================
+
   public List<OrderDto> findOrdersForSupplier(Long supplierId){
     List<Order> list = orders.findDistinctByItems_Plant_Supplier_Id(supplierId);
     return list.stream().map(this::toDto).toList();
@@ -229,7 +233,7 @@ public class OrderService {
     return orders.findByType(OrderType.PURCHASE).stream().map(this::toDto).toList();
   }
 
-  // ======= MÉTODOS ADMIN (status/borrado de compras) =======
+  // ===================== ADMIN: compras (status / borrar) =====================
 
   public OrderDto adminUpdatePurchaseStatus(Long id, OrderStatus newStatus) {
     if (newStatus == null) {
@@ -244,7 +248,6 @@ public class OrderService {
     OrderStatus current = po.getStatus();
     if (current == newStatus) return toDto(po);
 
-    // Reglas de transición
     boolean allowed = switch (current) {
       case NEW      -> (newStatus == OrderStatus.ACCEPTED || newStatus == OrderStatus.CANCELED);
       case ACCEPTED -> (newStatus == OrderStatus.COMPLETED || newStatus == OrderStatus.CANCELED);
@@ -253,11 +256,11 @@ public class OrderService {
 
     if (!allowed) {
       throw new ResponseStatusException(
-        HttpStatus.CONFLICT, "Transición no permitida: " + current + " → " + newStatus
+          HttpStatus.CONFLICT, "Transición no permitida: " + current + " → " + newStatus
       );
     }
 
-    // (OPCIONAL) entrada de stock al COMPLETED
+    // entrada de stock al COMPLETED
     if (newStatus == OrderStatus.COMPLETED && po.getItems() != null) {
       for (OrderItem it : po.getItems()) {
         Plant plant = it.getPlant();
@@ -278,10 +281,9 @@ public class OrderService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No es un pedido de COMPRA");
     }
 
-    // Solo se puede borrar NEW o CANCELED
     if (!(po.getStatus() == OrderStatus.NEW || po.getStatus() == OrderStatus.CANCELED)) {
       throw new ResponseStatusException(
-        HttpStatus.CONFLICT, "Solo se pueden eliminar compras en estado NEW o CANCELED"
+          HttpStatus.CONFLICT, "Solo se pueden eliminar compras en estado NEW o CANCELED"
       );
     }
 
@@ -293,7 +295,52 @@ public class OrderService {
         .stream().map(this::toDto).toList();
   }
 
-  // ======= Helpers =======
+  // ===================== ADMIN: ventas a clientes (detalle / status) =====================
+
+  public OrderDto adminGetCustomerOrder(Long id) {
+    Order o = orders.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no existe"));
+
+    if (o.getType() != OrderType.CUSTOMER) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No es un pedido de cliente");
+    }
+    if (o.getStatus() == OrderStatus.CART) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El carrito no es un pedido confirmado");
+    }
+    return toDto(o);
+  }
+
+  public OrderDto adminUpdateCustomerStatus(Long id, OrderStatus next) {
+    if (next == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado destino requerido");
+    }
+
+    Order o = orders.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido no existe"));
+
+    if (o.getType() != OrderType.CUSTOMER) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No es un pedido de cliente");
+    }
+    if (o.getStatus() == OrderStatus.CART) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El carrito no es un pedido confirmado");
+    }
+
+    OrderStatus current = o.getStatus();
+    boolean allowed = (current == OrderStatus.PAID) &&
+        (next == OrderStatus.SHIPPED || next == OrderStatus.CANCELED);
+
+    if (!allowed) {
+      throw new ResponseStatusException(
+          HttpStatus.CONFLICT, "Transición no permitida: " + current + " → " + next
+      );
+    }
+
+    o.setStatus(next);
+    orders.save(o);
+    return toDto(o);
+  }
+
+  // ===================== Helpers =====================
 
   private Order getOrCreateCart(String email){
     User u = users.findByEmail(email).orElseThrow();
@@ -301,15 +348,15 @@ public class OrderService {
       Order o = new Order();
       o.setCustomer(u);
       o.setStatus(OrderStatus.CART);
-      o.setItems(new ArrayList<>());  // evita NPE si la entidad no inicializa
+      o.setType(OrderType.CUSTOMER);
+      o.setItems(new ArrayList<>());
       return orders.save(o);
     });
   }
 
-  // MAPPER: order -> DTO
   private OrderDto toDto(Order o){
-    var items = (o.getItems() == null) ? List.<OrderItem>of() : o.getItems();
-    var itemDtos = items.stream().map(this::toItemDto).toList();
+    var itemsList = (o.getItems() == null) ? List.<OrderItem>of() : o.getItems();
+    var itemDtos = itemsList.stream().map(this::toItemDto).toList();
     var total = itemDtos.stream().map(OrderItemDto::getLineTotal)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
     String created = o.getCreatedAt() != null ? o.getCreatedAt().toString() : null;
@@ -326,6 +373,11 @@ public class OrderService {
         customerId
     );
     dto.setCustomerName(customerNm);
+
+    // nombre de proveedor (si aplica)
+    if (o.getSupplier() != null) {
+      dto.setSupplierName(o.getSupplier().getName());
+    }
     return dto;
   }
 

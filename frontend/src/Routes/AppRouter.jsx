@@ -25,9 +25,9 @@ import SupplierProfileForm from "../components/Profile/SupplierProfileForm";
 import AdminPlantsList from "../components/Pages/PlantsList";
 import AdminUsersList from "../components/Pages/UsersList";
 import AdminPurchasesList from "../components/Pages/PurchasesList";
+import AdminOrderDetail from "../components/Admin/AdminOrderDetail";
 import BlogPage from "../components/Pages/BlogPage";
-import PlantPage from "../components/Pages/PlantPage";
-import PlantList from "../components/Catalog/PlantList";
+import PlantPage from "../components/Pages/PlantPage"; // 👈 asegúrate de este path
 
 export default function AppRouter() {
   return (
@@ -35,7 +35,7 @@ export default function AppRouter() {
       <Routes>
         {/* Públicas */}
         <Route path="/" element={<Home />} />
-        <Route path="/tienda" element={<PlantList/>} />
+        <Route path="/tienda" element={<PlantPage />} />
         <Route path="/plants/:id" element={<PlantPage />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:id" element={<BlogPost />} />
@@ -43,37 +43,42 @@ export default function AppRouter() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
 
-        {/* Privadas (cliente) */}
-        <Route
-          path="/client/me"
-          element={<RoleProtected roles={["CLIENT"]}><ClientProfileForm /></RoleProtected>}
-        />
+        {/* Cliente */}
+        <Route path="/client/me" element={<RoleProtected roles={["CLIENT"]}><ClientProfileForm /></RoleProtected>} />
         <Route path="/profile" element={<Protected><Profile /></Protected>} />
         <Route path="/cart" element={<Protected><CartView /></Protected>} />
-        <Route path="/orders" element={<RoleProtected roles={["CLIENT"]}><OrderHistory /></RoleProtected>}/>
-        <Route path="/mi-historial" element={<RoleProtected roles={["CLIENT"]}><OrderHistory /></RoleProtected>}/>
+        <Route path="/orders" element={<RoleProtected roles={["CLIENT"]}><OrderHistory /></RoleProtected>} />
+        <Route path="/mi-historial" element={<RoleProtected roles={["CLIENT"]}><OrderHistory /></RoleProtected>} />
 
-        {/* Privadas (admin) */}
-        <Route path="/admin/plants/new" element={<RoleProtected roles={["ADMIN"]}><AdminPlantForm /></RoleProtected>}/>
-        <Route path="/admin/users/new" element={<RoleProtected roles={["ADMIN"]}><AdminUserForm /></RoleProtected>}/>
-        <Route path="/admin/blog/new" element={<RoleProtected roles={["ADMIN"]}><AdminBlogForm /></RoleProtected>}/>
-        <Route path="/admin/purchase/new" element={<RoleProtected roles={["ADMIN"]}><AdminPurchaseForm /></RoleProtected>}/>
-        <Route path="/admin/me" element={<RoleProtected roles={["ADMIN"]}><AdminProfileForm /></RoleProtected>} />
+        {/* Admin – CREAR */}
+        <Route path="/admin/plants/new" element={<RoleProtected roles={["ADMIN"]}><AdminPlantForm /></RoleProtected>} />
+        <Route path="/admin/users/new" element={<RoleProtected roles={["ADMIN"]}><AdminUserForm /></RoleProtected>} />
+        <Route path="/admin/blog/new" element={<RoleProtected roles={["ADMIN"]}><AdminBlogForm /></RoleProtected>} />
+        {/* 👇 corregido a plural */}
+        <Route path="/admin/purchases/new" element={<RoleProtected roles={["ADMIN"]}><AdminPurchaseForm /></RoleProtected>} />
+
+        {/* Admin – EDITAR  */}
+        <Route path="/admin/plants/:id/edit" element={<RoleProtected roles={["ADMIN"]}><AdminPlantForm /></RoleProtected>} />
+        <Route path="/admin/users/:id/edit" element={<RoleProtected roles={["ADMIN"]}><AdminUserForm /></RoleProtected>} />
+        <Route path="/admin/blog/:id/edit" element={<RoleProtected roles={["ADMIN"]}><AdminBlogForm /></RoleProtected>} />
+        <Route path="/admin/purchases/:id/edit" element={<RoleProtected roles={["ADMIN"]}><AdminPurchaseForm /></RoleProtected>} />
+
+        {/* Admin – Listas/Dashboard */}
+        <Route path="/admin/plants" element={<RoleProtected roles={["ADMIN"]}><AdminPlantsList /></RoleProtected>} />
+        <Route path="/admin/blog" element={<RoleProtected roles={["ADMIN"]}><AdminBlogList /></RoleProtected>} />
+        <Route path="/admin/users" element={<RoleProtected roles={["ADMIN"]}><AdminUsersList /></RoleProtected>} />
+        <Route path="/admin/purchases" element={<RoleProtected roles={["ADMIN"]}><AdminPurchasesList /></RoleProtected>} />
         <Route path="/admin/orders" element={<RoleProtected roles={["ADMIN"]}><AdminOrders /></RoleProtected>} />
-
-        {/* Listas Admin */}
-        <Route path="/admin/plants" element={<RoleProtected roles={["ADMIN"]}><AdminPlantsList /></RoleProtected>}/>
-        <Route path="/admin/blog" element={<RoleProtected roles={["ADMIN"]}><AdminBlogList /></RoleProtected>}/>
-        <Route path="/admin/users" element={<RoleProtected roles={["ADMIN"]}><AdminUsersList /></RoleProtected>}/>
-        <Route path="/admin/purchases" element={<RoleProtected roles={["ADMIN"]}><AdminPurchasesList /></RoleProtected>}/>
         <Route path="/admin" element={<RoleProtected roles={["ADMIN"]}><AdminDashboard /></RoleProtected>} />
+        <Route path="/admin/orders/:id" element={<RoleProtected roles={["ADMIN"]}><AdminOrderDetail /></RoleProtected>}/>
+        
+        {/* Supplier */}
+        <Route path="/supplier/me" element={<RoleProtected roles={["SUPPLIER"]}><SupplierProfileForm /></RoleProtected>} />
+        <Route path="/supplier/inbox" element={<RoleProtected roles={["SUPPLIER"]}><SupplierInbox /></RoleProtected>} />
 
-        {/* Privadas (supplier) */}
-        <Route path="/supplier/me" element={<RoleProtected roles={["SUPPLIER"]}><SupplierProfileForm /></RoleProtected>}/>
-        <Route path="/supplier/inbox" element={<RoleProtected roles={["SUPPLIER"]}><SupplierInbox /></RoleProtected>}/>
-
-        {/* 404 → home */}
-        <Route path="*" element={<Navigate to="/" replace />} /> </Routes>
+        {/* 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </Layout>
   );
 }

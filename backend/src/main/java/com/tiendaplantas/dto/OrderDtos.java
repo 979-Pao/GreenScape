@@ -55,7 +55,8 @@ public class OrderDtos {
     private BigDecimal total;
     private String createdAt;        // ISO-8601
     private Long customerId;         // id del dueño/creador
-    private String customerName;     // nombre del dueño/creador (NUEVO)
+    private String customerName;     // nombre del dueño/creador
+    private String supplierName;     // NUEVO: nombre del proveedor (para compras)
 
     // Constructor original (compat)
     public OrderDto(Long id, String status, List<OrderItemDto> items,
@@ -64,11 +65,20 @@ public class OrderDtos {
       this.createdAt = createdAt; this.customerId = customerId;
     }
 
-    // Constructor opcional incluyendo nombre (conveniencia)
+    // Constructor opcional incluyendo customerName (conveniencia)
     public OrderDto(Long id, String status, List<OrderItemDto> items,
                     BigDecimal total, String createdAt, Long customerId, String customerName) {
       this(id, status, items, total, createdAt, customerId);
       this.customerName = customerName;
+    }
+
+    // Constructor opcional incluyendo customerName y supplierName (conveniencia)
+    public OrderDto(Long id, String status, List<OrderItemDto> items,
+                    BigDecimal total, String createdAt, Long customerId,
+                    String customerName, String supplierName) {
+      this(id, status, items, total, createdAt, customerId);
+      this.customerName = customerName;
+      this.supplierName = supplierName;
     }
 
     public Long getId() { return id; }
@@ -80,5 +90,9 @@ public class OrderDtos {
 
     public String getCustomerName() { return customerName; }
     public void setCustomerName(String customerName) { this.customerName = customerName; }
+
+    // NUEVO: getter/setter para supplierName
+    public String getSupplierName() { return supplierName; }
+    public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
   }
 }
