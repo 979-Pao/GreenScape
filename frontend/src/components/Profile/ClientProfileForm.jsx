@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { clientUpdateMe } from "../../api/client";
 import { useAuth } from "../../Context/AuthContext.jsx";
+import Topbar from "../Common/Topbar";
 
 export default function ClientProfileForm() {
   const { user } = useAuth();
@@ -38,6 +39,7 @@ export default function ClientProfileForm() {
 
   return (
     <form className="card" onSubmit={onSubmit} style={{ maxWidth: 520 }}>
+      <Topbar backTo="/profile" />
       <h3>Editar mi perfil (Cliente)</h3>
       <input placeholder="Nombre" value={form.name} onChange={set("name")} />
       <input placeholder="Teléfono" value={form.phone} onChange={set("phone")} />

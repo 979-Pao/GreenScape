@@ -51,6 +51,7 @@ export default function AppRouter() {
         <Route path="/mi-historial" element={<RoleProtected roles={["CLIENT"]}><OrderHistory /></RoleProtected>} />
 
         {/* Admin – CREAR */}
+        <Route path="/admin/me" element={<RoleProtected roles={["ADMIN"]}><AdminProfileForm /></RoleProtected>} />
         <Route path="/admin/plants/new" element={<RoleProtected roles={["ADMIN"]}><AdminPlantForm /></RoleProtected>} />
         <Route path="/admin/users/new" element={<RoleProtected roles={["ADMIN"]}><AdminUserForm /></RoleProtected>} />
         <Route path="/admin/blog/new" element={<RoleProtected roles={["ADMIN"]}><AdminBlogForm /></RoleProtected>} />

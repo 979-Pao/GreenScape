@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getPlant as publicGetPlant } from "../../../api/plants"; 
-import AdminTopbar from "../AdminTopbar";
+import { getPlant as publicGetPlant } from "../../../api/plants";
 import * as AdminApi from "../../../api/admin";
+import AdminTopbar from "../AdminTopbar";
 
 const normalizeForForm = (p = {}) => ({
   scientificName: p.scientificName ?? "",
@@ -10,7 +10,7 @@ const normalizeForForm = (p = {}) => ({
   name:           p.name ?? "",
   description:    p.description ?? "",
   category:       p.category ?? "",
-  price:          p.price ?? "",           // string para <input type="number">
+  price:          p.price ?? "",
   stock:          p.stock ?? "",
   supplierId:     p.supplierId ?? p.supplier?.id ?? "",
 });
@@ -28,38 +28,60 @@ export default function AdminPlantForm() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState(normalizeForForm());
-  const [initial, setInitial] = useState(null); // copia para calcular el diff
+  const [initial, setInitial] = useState(null);
   const [loading, setLoading] = useState(isEdit);
   const [err, setErr] = useState("");
 
-  // carga inicial en edición
   useEffect(() => {
     if (!isEdit) return;
     let alive = true;
+
     (async () => {
+      setErr("");
+      setLoading(true);
       try {
-        setErr("");
-       const data =
-        (await AdminApi.adminGetPlant?.(id)) // si existiera en tu api/admin.js
-        ?? (await publicGetPlant?.(id));     // fallback público
+        let data = null;
+
+        // 1) intenta admin
+        if (typeof AdminApi.adminGetPlant === "function") {
+          try {
+            data = await AdminApi.adminGetPlant(id);
+          } catch (e) {
+            // si falla con 401/403/404, seguimos al fallback
+            console.warn("adminGetPlant falló, uso público:", e?.response?.status || e?.message);
+          }
+        }
+
+        // 2) fallback público
+        if (!data && typeof publicGetPlant === "function") {
+          try {
+            data = await publicGetPlant(id);
+          } catch (e) {
+            // si también falla, re-lanza y lo atrapamos abajo
+            throw e;
+          }
+        }
+
         if (!alive) return;
         const f = normalizeForForm(data || {});
         setForm(f);
         setInitial(f);
       } catch (e) {
-        if (alive) setErr(e?.response?.data?.message || e?.message || "No se pudo cargar la planta");
+        if (alive) {
+          setErr(e?.response?.data?.message || e?.message || "No se pudo cargar la planta");
+        }
       } finally {
         if (alive) setLoading(false);
       }
     })();
+
     return () => { alive = false; };
   }, [id, isEdit]);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  // diff solo con campos cambiados (comparando strings del form)
   const diff = useMemo(() => {
-    if (!initial) return form; // en crear, envía todo
+    if (!initial) return form; // en crear, envia todo
     const entries = Object.entries(form).filter(([k, v]) => String(v) !== String(initial[k]));
     return Object.fromEntries(entries);
   }, [form, initial]);
@@ -68,9 +90,8 @@ export default function AdminPlantForm() {
     e.preventDefault();
     try {
       if (isEdit) {
-        // enviamos solo lo modificado para no sobreescribir con nulls
         const payload = normalizeForPayload(diff);
-        await AdminApi.adminUpdatePlant(id, payload); // tu backend ya actualiza solo los no-nulos
+        await AdminApi.adminUpdatePlant(id, payload);
       } else {
         await AdminApi.adminCreatePlant(normalizeForPayload(form));
       }

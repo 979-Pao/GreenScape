@@ -91,7 +91,7 @@ export default function Profile() {
         {/* CLIENT → carrito / pedidos */}
         {hasRole("CLIENT") && (
           <>
-            <Link to="/profile" className="btn" style={{ textAlign: "center" }}>
+            <Link to="/client/me" className="btn" style={{ textAlign: "center" }}>
               Editar perfil </Link>
             <Link to="/cart" className="btn" style={{ textAlign: "center" }}>
               Carrito</Link>
@@ -105,7 +105,7 @@ export default function Profile() {
         {/* SUPPLIER */}
         {hasRole("SUPPLIER") && (
          <>
-           <Link to="/api/suplier/me" className="btn" style={{ textAlign: "center" }}>
+           <Link to="/supplier/me" className="btn" style={{ textAlign: "center" }}>
               Editar perfil </Link>
            <Link to="/supplier/inbox" className="btn" style={{ textAlign: "center" }}>
             Pedidos prov. </Link>
