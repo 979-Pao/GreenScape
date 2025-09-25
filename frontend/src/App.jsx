@@ -1,2 +1,2 @@
-export default function App(){ return null; } // usamos Layout + Routes directamente
+export default function App(){ return null; } 
 

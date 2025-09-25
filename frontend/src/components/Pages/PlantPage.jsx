@@ -4,9 +4,8 @@ import { getPlant, getPlantsPaged } from "../../api/plants";
 import { addToCart } from "../../api/orders";
 import PlantList from "../Catalog/PlantList";
 
-// Helpers
-const PLACEHOLDER =
-  "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=1200&auto=format&fit=crop";
+// === Helpers ===
+const PLACEHOLDER = "/img/placeholder-plant.png"; // asegúrate de tener este archivo en /public/img/
 const slugify = (s = "") =>
   String(s)
     .normalize("NFD")
@@ -62,7 +61,7 @@ function PlantDetail({ id }) {
 
         const rel = rows
           .filter((r) => String(r.id) !== String(id))
-          .slice(0, 5);
+          .slice(0, 4);
 
         if (!alive) return;
         setPlant(p);
@@ -132,6 +131,7 @@ function PlantDetail({ id }) {
           <img
             src={cover}
             alt={plant.commonName || plant.scientificName}
+            loading="lazy"
             style={{ width: "100%", height: "100%", objectFit: "cover", maxHeight: 520 }}
             onError={(e) => {
               e.currentTarget.src = PLACEHOLDER;
@@ -233,30 +233,35 @@ function PlantDetail({ id }) {
               gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
             }}
           >
-            {related.map((p) => (
-              <article
-                key={p.id}
-                style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 12 }}
-              >
-                <Link
-                  to={`/plants/${p.id}`}
-                  style={{ textDecoration: "none", color: "inherit", display: "grid", gap: 8 }}
+            {related.map((p) => {
+              const slugP = slugify(p.imageSlug || p.scientificName || p.commonName);
+              const coverP = p.imageUrl || `/img/plants/${slugP}.jpg`;
+              return (
+                <article
+                  key={p.id}
+                  style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 12 }}
                 >
-                  <img
-                    src={p.imageUrl || PLACEHOLDER}
-                    alt={p.commonName || p.scientificName}
-                    style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 8 }}
-                    onError={(e) => {
-                      e.currentTarget.src = PLACEHOLDER;
-                    }}
-                  />
-                  <div style={{ fontWeight: 700 }}>{p.commonName || p.scientificName}</div>
-                  <div style={{ color: "#64748b", fontSize: 13 }}>
-                    {money.format(Number(p.price || 0))}
-                  </div>
-                </Link>
-              </article>
-            ))}
+                  <Link
+                    to={`/plants/${p.id}`}
+                    style={{ textDecoration: "none", color: "inherit", display: "grid", gap: 8 }}
+                  >
+                    <img
+                      src={coverP}
+                      alt={p.commonName || p.scientificName}
+                      loading="lazy"
+                      style={{ width: "100%", height: 160, objectFit: "cover", borderRadius: 8 }}
+                      onError={(e) => {
+                        e.currentTarget.src = PLACEHOLDER;
+                      }}
+                    />
+                    <div style={{ fontWeight: 700 }}>{p.commonName || p.scientificName}</div>
+                    <div style={{ color: "#64748b", fontSize: 13 }}>
+                      {money.format(Number(p.price || 0))}
+                    </div>
+                  </Link>
+                </article>
+              );
+            })}
           </div>
         </div>
       )}

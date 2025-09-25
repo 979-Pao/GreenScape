@@ -55,7 +55,6 @@ export default function AppRouter() {
         <Route path="/admin/plants/new" element={<RoleProtected roles={["ADMIN"]}><AdminPlantForm /></RoleProtected>} />
         <Route path="/admin/users/new" element={<RoleProtected roles={["ADMIN"]}><AdminUserForm /></RoleProtected>} />
         <Route path="/admin/blog/new" element={<RoleProtected roles={["ADMIN"]}><AdminBlogForm /></RoleProtected>} />
-        {/* 👇 corregido a plural */}
         <Route path="/admin/purchases/new" element={<RoleProtected roles={["ADMIN"]}><AdminPurchaseForm /></RoleProtected>} />
 
         {/* Admin – EDITAR  */}
