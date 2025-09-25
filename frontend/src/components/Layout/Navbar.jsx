@@ -1,8 +1,10 @@
 import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext.jsx";
-import HealthBadge from "../Common/HealthBadge";
+//import HealthBadge from "../Common/HealthBadge";
+import HealthCheckButton from "../Common/HealthCheckButton";
 import ProfileMenu from "./ProfileMenu";
 import logoUrl from "../../assets/images/greentree.png";
+
 
 const linkClass = ({ isActive }) => "nav-link" + (isActive ? " active" : "");
 
@@ -39,8 +41,7 @@ export default function Navbar() {
 
         {/* Acciones derechas */}
         <div className="container-actions" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <HealthBadge />
-
+  
           {!isAuthenticated ? (
             <>
               <NavLink to="/login" className="btn-icon" title="Iniciar sesión" aria-label="Iniciar sesión">
@@ -49,6 +50,10 @@ export default function Navbar() {
               <NavLink to="/register" className="btn" title="Registrarse">
                 Registrarse
               </NavLink>
+
+                {/*<HealthBadge />*/}
+                <HealthCheckButton />
+
             </>
           ) : (
             <>
