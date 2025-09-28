@@ -6,15 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/** DTOs de Blog: Create/Update/Resp */
 public class BlogDtos {
 
   @Data @NoArgsConstructor
   public static class Create {
     @NotBlank private String title;
-    private String slug;          // opcional: si no viene, lo generamos
+    private String slug;          
     @NotBlank private String content;
-    private PostStatus status;    // DRAFT/PUBLISHED; si no viene → DRAFT
+    private PostStatus status;    
   }
 
   @Data @NoArgsConstructor
@@ -32,7 +31,7 @@ public class BlogDtos {
     private String slug;
     private String content;
     private PostStatus status;
-    private String createdAt; // ISO-8601
+    private String createdAt; 
     private Long authorId;
   }
 }

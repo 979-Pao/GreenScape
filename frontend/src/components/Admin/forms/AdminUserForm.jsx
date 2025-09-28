@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import * as adminApi from "../../../api/admin";   // 👈 un solo import
+import * as adminApi from "../../../api/admin";   
 import AdminTopbar from "../AdminTopbar";
 
 const normalizeForForm = (u = {}, defRole = "CLIENT") => ({
@@ -8,7 +8,7 @@ const normalizeForForm = (u = {}, defRole = "CLIENT") => ({
   email: u.email ?? "",
   role:  u.role  ?? defRole,
   phone: u.phone ?? "",
-  password: "", // en edición se deja vacío
+  password: "", 
 });
 
 export default function AdminUserForm() {
@@ -49,9 +49,9 @@ export default function AdminUserForm() {
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const diff = useMemo(() => {
-    if (!initial) return form; // creación => envía todo
+    if (!initial) return form; 
     const entries = Object.entries(form).filter(([k, v]) => {
-      if (k === "password") return v?.length > 0; // solo si escribiste una nueva
+      if (k === "password") return v?.length > 0; 
       return String(v) !== String(initial[k]);
     });
     return Object.fromEntries(entries);
@@ -63,7 +63,7 @@ export default function AdminUserForm() {
       if (isEdit) {
         await adminApi.adminUpdateUser(id, diff);
       } else {
-        await adminApi.adminCreateUser(form); // aquí password es requerido
+        await adminApi.adminCreateUser(form); 
       }
       navigate("/admin/users");
     } catch (e2) {

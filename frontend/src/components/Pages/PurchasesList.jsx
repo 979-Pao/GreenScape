@@ -5,27 +5,21 @@ import Pagination from "../Common/Pagination";
 import DateRange from "../Common/DateRange";
 import AdminTopbar from "../Admin/AdminTopbar";
 
-// Opciones por tipo
 const ORDER_STATUSES = ["PAID", "SHIPPED", "CANCELED"];
 const PURCHASE_STATUSES = ["NEW", "ACCEPTED", "COMPLETED"];
 
 export default function PurchasesList() {
-  const [tab, setTab] = useState("purchases"); // "purchases" | "orders"
+  const [tab, setTab] = useState("purchases"); 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-
-  // filtros
   const [status, setStatus] = useState("");
-  const [supplier, setSupplier] = useState(""); // solo purchases
-  const [q, setQ] = useState("");               // cliente/proveedor/ID
+  const [supplier, setSupplier] = useState(""); 
+  const [q, setQ] = useState("");               
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
-
-  // paginación
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -41,7 +35,6 @@ export default function PurchasesList() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Al cambiar de pestaña, limpiar estado para no dejar uno inválido
   useEffect(() => { setStatus(""); }, [tab]);
 
   const filtered = useMemo(() => {
@@ -92,7 +85,7 @@ export default function PurchasesList() {
     outline: active ? "2px solid #111" : "none",
   });
 
-  // Opciones de estado según pestaña (para el filtro)
+
   const STATUS_OPTIONS = tab === "orders" ? ORDER_STATUSES : PURCHASE_STATUSES;
 
   return (
@@ -101,7 +94,6 @@ export default function PurchasesList() {
         Ventas / Compras
       </h2>
 
-      {/* corregido a plural */}
       <AdminTopbar toNew="/admin/purchases/new" newLabel="Nueva compra a proveedor" />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
@@ -179,7 +171,6 @@ export default function PurchasesList() {
 
                 <td>
                   {tab === "purchases" ? (
-                    // Solo estados válidos para compras
                     <select
                       value={o.status}
                       onChange={(e) => onChangeStatus(o.id, e.target.value)}
@@ -189,7 +180,6 @@ export default function PurchasesList() {
                       ))}
                     </select>
                   ) : (
-                    // Ventas: solo mostramos
                     o.status
                   )}
                 </td>

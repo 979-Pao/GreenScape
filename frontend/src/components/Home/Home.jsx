@@ -3,6 +3,7 @@ import Categories from "./Categories";
 import BestProducts from "./BestProducts";
 import Features from "./Features";
 
+
 export default function Home(){
   return (
     <>

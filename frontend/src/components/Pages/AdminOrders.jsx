@@ -30,7 +30,7 @@ function badge(status) {
 }
 
 export default function AdminOrders() {
-  const { user } = useAuth(); // asumo que tienes role en user.role
+  const { user } = useAuth(); 
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
@@ -39,7 +39,7 @@ export default function AdminOrders() {
     const load = async () => {
       try {
         setLoading(true); setErr(null);
-        const data = await getAllCustomerOrders(); // GET /api/orders
+        const data = await getAllCustomerOrders(); 
         const sorted = [...(data || [])].sort(
           (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
         );
@@ -51,7 +51,6 @@ export default function AdminOrders() {
     load();
   }, []);
 
-  // (Opcional) gate simple de rol en front:
   if (user && user.role && !["ADMIN"].includes(String(user.role).toUpperCase())) {
     return <p>No tienes permiso para ver esta página.</p>;
   }

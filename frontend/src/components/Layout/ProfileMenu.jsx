@@ -16,7 +16,6 @@ export default function ProfileMenu({ user, signOut }) {
     };
     const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
 
-    // Escuchas "click" del documento; el contains() evita cerrar si haces click dentro
     document.addEventListener("click", onDocClick);
     document.addEventListener("keydown", onKey);
     return () => {
@@ -31,12 +30,10 @@ export default function ProfileMenu({ user, signOut }) {
     setOpen((o) => !o);
   };
 
-  // ✔ onClick: cierra el menú y hace logout
   const handleSignOut = (e) => {
     e.preventDefault();
     e.stopPropagation();
     setOpen(false);
-    // por si te pasan undefined
     if (typeof signOut === "function") signOut();
   };
 
@@ -97,7 +94,6 @@ export default function ProfileMenu({ user, signOut }) {
 
           <div className="divider" />
 
-          {/* Salir con onClick */}
           <button
             type="button"
             className="dropdown-item danger"

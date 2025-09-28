@@ -1,18 +1,5 @@
 import { Link } from "react-router-dom";
 
-/**
- * Topbar genérico con:
- * - título
- * - botón Volver (opcional)
- * - acciones a la derecha (links o botones)
- *
- * props:
- *  - title?: string
- *  - backTo?: string            // si existe, muestra "← Volver"
- *  - backLabel?: string         // por defecto "← Volver"
- *  - actions?: Array<{ label: string, to?: string, onClick?: () => void, variant?: 'primary'|'ghost'|'danger' }>
- *  - children?: ReactNode       // contenido extra (filtros, tabs, etc.)
- */
 export default function Topbar({
   title,
   backTo,
@@ -36,7 +23,7 @@ export default function Topbar({
         marginBottom: 12,
       }}
     >
-      {/* IZQUIERDA: volver + título */}
+
       <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
         {backTo && (
           <Link to={backTo} className="btn ghost">{backLabel}</Link>
@@ -48,14 +35,13 @@ export default function Topbar({
         )}
       </div>
 
-      {/* CENTRO opcional: children (filtros, tabs, etc.) */}
       {children && (
         <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
           {children}
         </div>
       )}
 
-      {/* DERECHA: acciones */}
+
       <div style={{ display: "flex", gap: 8 }}>
         {actions.map((a, i) =>
           a.to ? (

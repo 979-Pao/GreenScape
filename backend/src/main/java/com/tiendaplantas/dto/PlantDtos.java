@@ -8,29 +8,25 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-/**
- * DTOs para creación/edición y respuesta de Plant.
- * Create: campos obligatorios para POST.
- * Update: todos opcionales para PUT (partial update).
- * Resp:   payload de salida.
- */
+/*** DTOs para creación/edición y respuesta de Plant. */
+
 public class PlantDtos {
 
   @Data @NoArgsConstructor
   public static class Create {
     @NotBlank private String scientificName;
     @NotBlank private String commonName;
-    private String name;          // alias opcional (tu entidad lo tiene)
+    private String name;          
     private String description;
     private String category;
     @NotNull  private BigDecimal price;
     @NotNull  private Integer stock;
-    private Long supplierId;      // opcional
+    private Long supplierId;      
   }
 
   @Data @NoArgsConstructor
   public static class Update {
-    // todos opcionales → si vienen null, no se tocan
+
     private String scientificName;
     private String commonName;
     private String name;

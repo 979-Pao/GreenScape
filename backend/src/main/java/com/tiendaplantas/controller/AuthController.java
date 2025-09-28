@@ -26,13 +26,12 @@ public class AuthController {
     this.auth = auth;
   }
 
-  /** Registro público: siempre como CLIENT */
   @PostMapping("/register")
   public ResponseEntity<AuthResponse> registerClient(@Valid @RequestBody RegisterRequest req) {
     return ResponseEntity.ok(auth.registerClient(req));
   }
 
-  /** Login: devuelve { token, user } y 401 si las credenciales no son válidas */
+
   @PostMapping("/login")
   public ResponseEntity<?> login(@Valid @RequestBody LoginRequest req) {
     try {
@@ -44,18 +43,17 @@ public class AuthController {
     }
   }
 
-  /** Usuario actual (para el front /me) */
+
   @GetMapping("/me")
   public ResponseEntity<UserResponse> me(Principal principal) {
     if (principal == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
-    // El servicio puede buscar por email/username desde principal.getName()
+
     UserResponse user = auth.me(principal.getName());
     return ResponseEntity.ok(user);
   }
 
-  /** Solo ADMIN: crear usuarios con rol específico */
   @PreAuthorize("hasRole('ADMIN')")
   @PostMapping("/admin/create-user")
   public ResponseEntity<UserResponse> createUserAsAdmin(

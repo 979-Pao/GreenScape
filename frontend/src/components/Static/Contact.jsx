@@ -16,7 +16,7 @@ export default function Contact(){
     },
     phone: (v) => {
       const trimmed = v.trim();
-      const onlyAllowedChars = /^[-\d+\s()]+$/.test(trimmed); // dígitos, +, espacios, paréntesis y guiones
+      const onlyAllowedChars = /^[-\d+\s()]+$/.test(trimmed); 
       const ok = trimmed.length >= 6 && onlyAllowedChars;
       return ok ? "" : "Ingresa tu número de teléfono";
     },
@@ -39,22 +39,19 @@ export default function Contact(){
   const onSubmit = (e) => {
     e.preventDefault();
     if (!validateAll()) return;
-    // TODO: fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(form) })
     setSuccess(true);
     setForm({ name:"", email:"", phone:"", message:"" });
   };
 
   return (
     <section className="contact-us-section container" style={{ padding: "32px 0" }}>
-      {/* BLOQUE INFORMATIVO (fuera del form) ✅ */}
       <div style={{ marginBottom: 16 }}>
         <h2 className="pager" style={{ color: "var(--green-medium)", margin: 0 }}>Contáctanos</h2>
         <p className="pager" style={{ marginTop: 8, color: "var(--gray-text)" }}>
           Puedes escribirnos a <b>info@green-space.com</b> o usar el formulario.
         </p>
       </div>
-
-      {/* FORMULARIO (sin el segundo “Contáctanos”) ✅ */}
+      
       <form className="contact-form" onSubmit={onSubmit} noValidate>
         <div className="field_name">
           <label htmlFor="full-name">Nombre completo</label>

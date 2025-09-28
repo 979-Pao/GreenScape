@@ -31,7 +31,7 @@ setLoading(true);
 try {
 await supplierUpdateMe(form);
 alert("Perfil actualizado ✅");
-setForm((f) => ({ ...f, password: "" })); // no dejamos la pass en memoria
+setForm((f) => ({ ...f, password: "" })); 
 } catch (err) {
 alert(err?.message || "No se pudo actualizar el perfil");
 } finally {

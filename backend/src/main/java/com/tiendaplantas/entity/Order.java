@@ -27,9 +27,9 @@ public class Order extends BaseEntity {
   }
 
   @Enumerated(EnumType.STRING)
-  private OrderType type = OrderType.CUSTOMER;  // default
-  // (opcional pero útil): proveedor ligado al pedido de compra
+  private OrderType type = OrderType.CUSTOMER;  
+
   @ManyToOne
-  private User supplier; // solo para PURCHASE
+  private User supplier; 
 
 }

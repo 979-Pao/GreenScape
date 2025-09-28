@@ -8,8 +8,6 @@ export default function BlogPage() {
   return (
     <section className="container" style={{ padding: "24px 0", display: "grid", gap: 16 }}>
 
-
-      {/* Lista pública */}
       <BlogList />
     </section>
   );

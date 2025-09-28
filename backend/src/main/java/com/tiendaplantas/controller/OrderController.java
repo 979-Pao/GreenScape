@@ -55,7 +55,7 @@ public class OrderController {
     return orders.myOrders(auth.getName());
   }
 
-  // ========================= SUPPLIER: LEGADO (mantener si ya lo usa el FE) =========================
+  // ========================= SUPPLIER =========================
 
   @PreAuthorize("hasRole('SUPPLIER')")
   @GetMapping("/supplier/mine")
@@ -85,9 +85,6 @@ public class OrderController {
     return orders.completePurchase(id, supplierId);
   }
 
-  // ========================= SUPPLIER: NUEVOS ENDPOINTS REALES =========================
-
-  /** KPIs del proveedor autenticado (pendientes, asignadas hoy, hilos abiertos). */
   @PreAuthorize("hasRole('SUPPLIER')")
   @GetMapping("/supplier/kpis")
   public Map<String, Long> supplierKpis(Authentication auth) {
@@ -95,15 +92,14 @@ public class OrderController {
     var list = orders.listPurchasesForSupplier(me.getId());
     long pending = list.stream().filter(o -> "NEW".equals(o.getStatus())).count();
     long accepted = list.stream().filter(o -> "ACCEPTED".equals(o.getStatus())).count();
-    long openThreads = pending + accepted; // simple: NEW + ACCEPTED
+    long openThreads = pending + accepted; 
     return Map.of(
         "pending", pending,
-        "todayAssigned", 0L,          // ajusta si luego quieres filtrar por fecha
+        "todayAssigned", 0L,          
         "openThreads", openThreads
     );
   }
 
-  /** Lista REAL de POs (tipo PURCHASE) del proveedor autenticado. */
   @PreAuthorize("hasRole('SUPPLIER')")
   @GetMapping("/supplier/purchases")
   public List<OrderDto> supplierPurchases(Authentication auth) {
@@ -111,7 +107,6 @@ public class OrderController {
     return orders.listPurchasesForSupplier(me.getId());
   }
 
-  /** Aceptar un PO. Requiere que el PO pertenezca al supplier. */
   @PreAuthorize("hasRole('SUPPLIER')")
   @PutMapping("/supplier/purchases/{id}/accept")
   public OrderDto acceptPurchase(Authentication auth, @PathVariable Long id) {
@@ -119,7 +114,6 @@ public class OrderController {
     return orders.acceptPurchase(id, me.getId());
   }
 
-  /** Completar un PO. Requiere que esté en estado ACCEPTED y pertenezca al supplier. */
   @PreAuthorize("hasRole('SUPPLIER')")
   @PutMapping("/supplier/purchases/{id}/complete")
   public OrderDto completePurchase(Authentication auth, @PathVariable Long id) {

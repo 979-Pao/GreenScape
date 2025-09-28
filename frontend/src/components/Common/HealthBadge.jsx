@@ -7,7 +7,7 @@ export default function HealthBadge() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await getHealth(); // { status: 'UP' | ... } o 200
+        const res = await getHealth(); 
         setOk(res?.status ? res.status === "UP" : true);
       } catch {
         setOk(false);

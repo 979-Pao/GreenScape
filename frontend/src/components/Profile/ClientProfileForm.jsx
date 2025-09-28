@@ -27,7 +27,7 @@ export default function ClientProfileForm() {
     try {
       await clientUpdateMe(form);
       alert("Perfil actualizado ✅");
-      setForm(f => ({ ...f, password: "" })); // no dejamos la pass en memoria
+      setForm(f => ({ ...f, password: "" })); 
     } catch (err) {
       alert(err?.message || "No se pudo actualizar el perfil");
     } finally {

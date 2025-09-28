@@ -8,12 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Create: alta (POST)
- * Update: edición parcial (PUT)
- * Resp:   payload completo de salida
- * Summary: listado ligero (compat con tu UserSummary previo)
- */
+/*** Create: alta (POST) */
 public class UserDtos {
 
   @Data @NoArgsConstructor
@@ -42,12 +37,11 @@ public class UserDtos {
     private String phone;
   }
 
-  // Opcional, para listados/compatibilidad
   @Data @AllArgsConstructor @NoArgsConstructor
   public static class Summary {
     private Long id;
     private String name;
     private String email;
-    private String role; // string para UI simple
+    private String role; 
   }
 }

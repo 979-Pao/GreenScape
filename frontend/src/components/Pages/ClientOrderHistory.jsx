@@ -51,8 +51,7 @@ export default function ClientOrderHistory() {
           setRows([]);
           return;
         }
-        const data = await getMyOrderHistory(); // GET /api/orders/cart/history
-        // Si el back no ordena desc, ordenamos por createdAt desc aquí:
+        const data = await getMyOrderHistory(); 
         const sorted = [...(data || [])].sort(
           (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
         );

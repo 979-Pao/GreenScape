@@ -30,7 +30,7 @@ public class SecurityConfig {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder(); // simple y consistente
+    return new BCryptPasswordEncoder(); 
   }  
   
   @Bean
@@ -64,7 +64,7 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
             .requestMatchers(HttpMethod.GET, "/api/plants/**", "/api/blog/**", "/api/health").permitAll()
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            // H2 (si aplica)
+            // H2 
             .requestMatchers("/h2-console/**").permitAll()
             // Resto autenticado
             .anyRequest().authenticated()
@@ -80,7 +80,7 @@ public class SecurityConfig {
     return config.getAuthenticationManager();
   }
 
-  // ---- CORS (ajusta origins a tu frontend) ----
+
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration cfg = new CorsConfiguration();

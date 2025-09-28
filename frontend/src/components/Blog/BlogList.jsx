@@ -2,35 +2,27 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { listPosts } from "../../api/blog";
 
-// ✅ Placeholder directo (no HTML)
 const PLACEHOLDER = "https://place-hold.it/1200x800?text=GreenScape";
 
-// --- Helpers ---
 function hashCode(str = "") {
   let h = 0;
   for (let i = 0; i < str.length; i++) { h = (h << 5) - h + str.charCodeAt(i); h |= 0; }
   return Math.abs(h);
 }
 
-/* ============== AIC (Art Institute of Chicago) ============== */
-/** Queries temáticas de plantas para el buscador */
 const AIC_QUERIES = [
   "plant", "plants", "flower", "flowers", "leaf", "leaves",
   "botany", "garden", "cactus", "succulent", "fern", "orchid"
 ];
 
-/** Cache simple en memoria para no spamear la API */
-const aicCache = new Map(); // key: query -> array de URLs IIIF
+const aicCache = new Map(); 
 
-/** Construye URL IIIF de AIC con ancho deseado */
 function aicBuildUrl(iiifBase, imageId, w = 1200) {
-  // Formato IIIF: {iiif}/2/{image_id}/full/{w},/0/default.jpg
-  // Docs AIC: iiif_url viene en "config.iiif_url"
+
   const base = iiifBase || "https://www.artic.edu/iiif/2";
   return `${base}/${imageId}/full/${w},/0/default.jpg`;
 }
 
-/** Busca en AIC por una query y devuelve una lista de URLs IIIF (solo con image_id) */
 async function aicFetchUrlsByQuery(query, w = 1200, limit = 40) {
   if (aicCache.has(query)) return aicCache.get(query);
   const url = `https://api.artic.edu/api/v1/artworks/search?q=${encodeURIComponent(
@@ -48,7 +40,6 @@ async function aicFetchUrlsByQuery(query, w = 1200, limit = 40) {
   return urls;
 }
 
-/** Devuelve UNA URL de AIC en base al seed (estable) */
 async function getAicUrl(seed, w = 1200) {
   const h = hashCode(String(seed));
   const q = AIC_QUERIES[h % AIC_QUERIES.length];
@@ -57,20 +48,15 @@ async function getAicUrl(seed, w = 1200) {
   return urls[h % urls.length];
 }
 
-/** Dadas las entradas, devuelve una lista de URLs en orden de intento (sin AIC, que es async) */
 function staticCandidates({ coverUrl, seed, w = 1200, h = 800 }) {
   const s = Math.abs(hashCode(String(seed)));
-  // Proveedor 1: loremflickr con tags de plantas (si falla, salta al siguiente)
   const flickr = `https://loremflickr.com/${w}/${h}/plant,leaf,garden,flower,fern?lock=${s % 5000}`;
-  // Proveedor 2: place-hold.it (siempre responde)
   const placehold = `https://place-hold.it/${w}x${h}?text=GreenScape`;
-  // Orden sincrónico: cover -> flickr -> placehold -> placeholder
   return [coverUrl, flickr, placehold, PLACEHOLDER].filter(Boolean);
 }
 
-/** Imagen con reintentos + inserta AIC (async) como candidato prioritario */
 function Cover({ title, coverUrl, seed, height = 200 }) {
-  const w = Math.round(height * 1.5) || 1200; // 3:2 aprox
+  const w = Math.round(height * 1.5) || 1200; 
   const h = height || 800;
 
   const [aicSrc, setAicSrc] = useState(null);
@@ -79,11 +65,9 @@ function Cover({ title, coverUrl, seed, height = 200 }) {
     [coverUrl, seed, w, h]
   );
 
-  // Cuando llega AIC, lo metemos en segunda posición (tras coverUrl)
   const sources = useMemo(() => {
     if (aicSrc) {
       const arr = [...baseSources];
-      // Inserta AIC después de coverUrl si hay coverUrl, en caso contrario al inicio
       const insertAt = baseSources[0] === coverUrl && coverUrl ? 1 : 0;
       arr.splice(insertAt, 0, aicSrc);
       return arr;
@@ -94,10 +78,8 @@ function Cover({ title, coverUrl, seed, height = 200 }) {
   const [idx, setIdx] = useState(0);
   const src = sources[idx] || PLACEHOLDER;
 
-  // Reinicia índice al cambiar fuentes
   useEffect(() => { setIdx(0); }, [sources.join("|")]);
 
-  // Busca una imagen AIC con seed estable (async)
   useEffect(() => {
     let alive = true;
     (async () => {
@@ -105,7 +87,6 @@ function Cover({ title, coverUrl, seed, height = 200 }) {
         const url = await getAicUrl(seed, w);
         if (alive && url) setAicSrc(url);
       } catch {
-        // si falla AIC, seguimos con flickr/placehold
       }
     })();
     return () => { alive = false; };
@@ -127,7 +108,7 @@ function Cover({ title, coverUrl, seed, height = 200 }) {
           display: "block",
         }}
       />
-      {/* Overlay para contraste */}
+
       <div
         style={{
           position: "absolute",
@@ -207,7 +188,7 @@ export default function BlogList() {
         .divider { height: 2px; background: #d1d5db; border: 0; width: 140px; margin: 4px 0 0 0;}
       `}</style>
 
-      {/* Hero / introducción */}
+
       <header style={{ display: "grid", gap: 6 }}>
         <h1 className="section-title" style={{ fontSize: 28 }}>
           Disfruta del Blog de GreenScape
@@ -218,7 +199,7 @@ export default function BlogList() {
         </p>
       </header>
 
-      {/* Últimos Post */}
+
       <div>
         <h3 className="section-title" style={{ fontSize: 20, marginBottom: 6 }}>
           Últimos Post
@@ -226,18 +207,18 @@ export default function BlogList() {
         <hr className="divider" />
       </div>
 
-      {/* Grid de tarjetas */}
+
       <div className="blog-grid">
         {posts.map((p, i) => {
           const date = p.createdAt?.slice?.(0, 10);
           const seed = p.id ?? p.slug ?? p.title ?? i;
-          const coverUrl = p.coverUrl || null; // si viene, se usa primero
+          const coverUrl = p.coverUrl || null; 
 
           return (
             <article key={p.id ?? i} className="blog-card">
-              {/* Portada con reintentos (cover -> AIC -> Flickr -> place-hold -> placeholder) */}
+
               <div style={{ position: "relative" }}>
-                {/* Chips */}
+
                 <div style={{ position: "absolute", top: 10, left: 10, zIndex: 2, display: "flex", gap: 6 }}>
                   {p.status ? <span className="chip">{p.status}</span> : null}
                   {p.slug ? <span className="chip">{p.slug.replaceAll("-", " ")}</span> : null}

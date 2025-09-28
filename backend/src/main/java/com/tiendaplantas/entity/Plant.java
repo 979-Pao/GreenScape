@@ -27,7 +27,6 @@ public class Plant extends BaseEntity {
   @NotBlank
   private String commonName;
 
-  // alias/compat con tu código previo
   private String name;
 
   @Column(length = 1000)

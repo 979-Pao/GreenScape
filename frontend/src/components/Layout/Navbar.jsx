@@ -11,37 +11,52 @@ const linkClass = ({ isActive }) => "nav-link" + (isActive ? " active" : "");
 export default function Navbar() {
   const { user, isAuthenticated, signOut } = useAuth();
 
-  // Normaliza roles para que funcione con user.roles (array) o user.role (string)
-  const roles = Array.isArray(user?.roles)
-    ? user.roles
-    : user?.role
-      ? [user.role]
-      : [];
-
+  const roles = Array.isArray(user?.roles) ? user.roles : user?.role ? [user.role]: [];
   const isAdmin = roles.map(r => String(r).toUpperCase()).includes("ADMIN");
   const primaryRole = roles[0] ? String(roles[0]) : "";
+
+  const closeMenu = () => {
+    const cb = document.getElementById("nav-toggle");
+    if (cb) cb.checked = false;
+  };
 
   return (
     <header className="site-header">
       <div className="container section-logo" style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        {/* Logo */}
+
         <Link to="/" className="brand" aria-label="Ir al inicio" style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
           <img src={logoUrl} alt="GreenScape" style={{ height: 60, width: "auto" }} />
           <strong>GreenScape</strong>
         </Link>
 
-        {/* Menú principal */}
-        <nav aria-label="Principal" style={{ display: "flex", gap: 40, marginLeft: 24 }}>
-          <NavLink to="/" end className={linkClass}>Inicio</NavLink>
-          <NavLink to="/tienda" className={linkClass}>Tienda</NavLink>
-          <NavLink to="/blog" className={linkClass}>Blog</NavLink>
-          <NavLink to="/contact" className={linkClass}>Contacto</NavLink>
+
+        <input
+          id="nav-toggle"
+          className="nav-toggle"
+          type="checkbox"
+          role="switch"
+          aria-label="Abrir menú"
+          aria-controls="primary-nav"
+        />
+        <label htmlFor="nav-toggle" className="menu-toggle" aria-controls="primary-nav">
+          <span />
+        </label>
+
+
+        <nav id="primary-nav" aria-label="Principal">
+          <ul className="nav-list" role="list">
+            <li><NavLink to="/" end className={linkClass} onClick={closeMenu}>Inicio</NavLink></li>
+            <li><NavLink to="/tienda" className={linkClass} onClick={closeMenu}>Tienda</NavLink></li>
+            <li><NavLink to="/blog" className={linkClass} onClick={closeMenu}>Blog</NavLink></li>
+            <li><NavLink to="/contact" className={linkClass} onClick={closeMenu}>Contacto</NavLink></li>
+          </ul>
         </nav>
 
 
-        {/* Acciones derechas */}
+        <label htmlFor="nav-toggle" className="nav-overlay" aria-hidden="true" />
+
+
         <div className="container-actions" style={{ display: "flex", alignItems: "center", gap: 12 }}>
-  
           {!isAuthenticated ? (
             <>
               <NavLink to="/login" className="btn-icon" title="Iniciar sesión" aria-label="Iniciar sesión">
@@ -50,10 +65,8 @@ export default function Navbar() {
               <NavLink to="/register" className="btn" title="Registrarse">
                 Registrarse
               </NavLink>
-
-                {/*<HealthBadge />*/}
-                <HealthCheckButton />
-
+              {/*<HealthBadge />*/}
+              <HealthCheckButton />
             </>
           ) : (
             <>
@@ -69,8 +82,8 @@ export default function Navbar() {
 
               <ProfileMenu
                 user={user}
-                signOut={signOut}              // <- asegúrate que ProfileMenu use onLogout
-                homePath={isAdmin ? "/admin" : "/profile"}  // <- alinea con tus rutas reales
+                signOut={signOut}
+                homePath={isAdmin ? "/admin" : "/profile"}
               />
             </>
           )}

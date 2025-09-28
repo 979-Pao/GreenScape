@@ -12,7 +12,7 @@ export default function CartView() {
     try {
       setLoading(true);
       setErr(null);
-      const data = await getCart(); // GET /api/orders/cart
+      const data = await getCart(); 
       setCart(data || { items: [], total: 0 });
     } catch (e) {
       const msg =
@@ -26,7 +26,7 @@ export default function CartView() {
     }
   };
 
-  // Un solo efecto, dependiente de isAuthenticated
+
   useEffect(() => {
     if (!isAuthenticated) {
       setCart({ items: [], total: 0 });
@@ -40,7 +40,7 @@ export default function CartView() {
 
   const removeItem = async (itemId) => {
     try {
-      await removeFromCart(itemId); // DELETE /api/orders/cart/items/{itemId}
+      await removeFromCart(itemId); 
       await load();
     } catch (e) {
       alert(e?.response?.data?.message || "No se pudo quitar el item");
@@ -49,7 +49,7 @@ export default function CartView() {
 
   const doCheckout = async () => {
     try {
-      await checkout(); // POST /api/orders/cart/checkout
+      await checkout(); 
       alert("¡Carrito pagado! ✅");
       await load();
     } catch (e) {
@@ -74,7 +74,7 @@ export default function CartView() {
         <>
           <ul className="list">
             {items.map((it) => {
-              const id = it.itemId ?? it.id ?? it.cartItemId; // 👈 fallback por si cambia el campo
+              const id = it.itemId ?? it.id ?? it.cartItemId; 
               const qty = Number(it.quantity ?? 1);
               const lineTotal = Number(it.lineTotal ?? (it.price ?? 0) * qty);
 

@@ -1,30 +1,25 @@
 import api from "./http";
 
-/** Agrega un item al carrito */
 export async function addToCart(plantId, quantity = 1) {
   const { data } = await api.post("/api/orders/cart/add", { plantId, quantity });
   return data;
 }
 
-/** Obtiene las órdenes (o el carrito del usuario, según tu API) */
 export async function getCart() {
   const { data } = await api.get("/api/orders/cart");
-  return data; // List<OrderDto> (o lo que devuelva tu API)
+  return data; 
 }
 
-/** Elimina un item del carrito por plantId */
 export async function removeFromCart(itemId) {
   const { data } = await api.delete(`/api/orders/cart/items/${itemId}`);
   return data;
 }
 
-/** Realiza el checkout */
 export async function checkout() {
   const { data } = await api.post("/api/orders/cart/checkout");
-  return data; // pedido creado, etc.
+  return data; 
 }
 
-// Historial del cliente logueado
 export const getMyOrderHistory = async () => {
   const { data } = await api.get("/api/orders/cart/history");
   return data;
@@ -32,11 +27,10 @@ export const getMyOrderHistory = async () => {
 
 // ---------- ADMIN ----------
 export async function getAdminKpis() {
-  const { data } = await api.get("/api/orders/admin/kpis"); // o "/api/admin/kpis"
-  return data; // { pendingOrders, todayRevenue, suppliersOpen, lowStock, ... }
+  const { data } = await api.get("/api/orders/admin/kpis"); 
+  return data; 
 }
 
-// Listado completo (ADMIN)
 export const getAllCustomerOrders = async () => {
   const { data } = await api.get("/api/orders");
   return data;

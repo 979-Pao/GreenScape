@@ -2,13 +2,13 @@ import { useState } from "react";
 import { getHealth } from "../../api/health";
 
 export default function HealthCheckButton({ title = "Conexión", buttonText = "Push" }) {
-  const [status, setStatus] = useState(null);   // null = sin probar, true = UP, false = DOWN
+  const [status, setStatus] = useState(null);   
   const [loading, setLoading] = useState(false);
 
   const handleTest = async () => {
     setLoading(true);
     try {
-      const res = await getHealth(); // { status: 'UP' } o 200 OK
+      const res = await getHealth(); 
       const ok = res?.status ? res.status === "UP" : true;
       setStatus(ok);
     } catch {
@@ -19,7 +19,7 @@ export default function HealthCheckButton({ title = "Conexión", buttonText = "P
   };
 
   const Indicator = () => {
-    const color = status ? "#10b981" : "#ef4444"; // verde / rojo
+    const color = status ? "#10b981" : "#ef4444"; 
     const label = status ? "UP" : "DOWN";
     return (
       <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
@@ -41,12 +41,11 @@ export default function HealthCheckButton({ title = "Conexión", buttonText = "P
 
   return (
     <div style={{ display: "grid", gap: 8, justifyItems: "center" }}>
-      {/* 🔹 El título SIEMPRE visible */}
+
       <small style={{ color: "#6b7280", fontWeight: 600, fontSize: 11, lineHeight: 1, letterSpacing: 0.1 }}>
         {title}
       </small>
 
-      {/* 🔹 Abajo cambia según estado: botón (antes) o indicador (después) */}
       {status === null ? (
 <button
   onClick={handleTest}

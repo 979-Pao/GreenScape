@@ -43,7 +43,7 @@ export default function PlantList() {
 
   return (
     <section className="section-best-products container" style={{ padding: "24px 0" }}>
-      {/* overrides suaves para quitar espacios grandes */}
+
       <style>{`
         .section-best-products { gap: 16px; }
         .section-best-products .section-head { margin: 0 0 8px; }

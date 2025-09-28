@@ -2,22 +2,20 @@ import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getPost, listPosts } from "../../api/blog";
 
-const PLACEHOLDER = "/img/placeholder-plant.png"; // local y confiable
+const PLACEHOLDER = "/img/placeholder-plant.png";
 
-// --- Helpers ---
 function hashCode(str = "") {
   let h = 0;
   for (let i = 0; i < str.length; i++) { h = (h << 5) - h + str.charCodeAt(i); h |= 0; }
   return Math.abs(h);
 }
 
-/* ============== AIC (Art Institute of Chicago) ============== */
 const AIC_QUERIES = [
   "plant","plants","flower","flowers","leaf","leaves",
   "botany","garden","cactus","succulent","fern","orchid"
 ];
 
-const aicCache = new Map(); // query -> array de URLs IIIF
+const aicCache = new Map(); 
 
 function aicBuildUrl(iiifBase, imageId, w = 1200) {
   const base = iiifBase || "https://www.artic.edu/iiif/2";
@@ -28,7 +26,7 @@ async function aicFetchUrlsByQuery(query, w = 1200, limit = 40) {
   if (aicCache.has(query)) return aicCache.get(query);
   const url = `https://api.artic.edu/api/v1/artworks/search?q=${encodeURIComponent(query)}&fields=id,title,image_id&limit=${limit}`;
   const res = await fetch(url);
-  if (!res.ok) return []; // si falla, seguimos con los estáticos
+  if (!res.ok) return []; 
   const json = await res.json();
   const iiifBase = json?.config?.iiif_url || "https://www.artic.edu/iiif/2";
   const items = Array.isArray(json?.data) ? json.data : [];
@@ -45,18 +43,17 @@ async function getAicUrl(seed, w = 1200) {
   return urls[h % urls.length] || null;
 }
 
-/* ============== Fuentes síncronas (sin fetch) ============== */
 function staticCandidates({ coverUrl, seed, w = 1200, h = 800 }) {
   const s = Math.abs(hashCode(String(seed)));
   const flickr = `https://loremflickr.com/${w}/${h}/plant,leaf,garden,flower,fern?lock=${s % 5000}`;
   const placehold = `https://place-hold.it/${w}x${h}?text=GreenScape`;
-  // Orden: cover -> flickr -> place-hold -> placeholder local
+
   return [coverUrl, flickr, placehold, PLACEHOLDER].filter(Boolean);
 }
 
-/* ============== Cover con AIC (async) + estáticos (sync) ============== */
+
 function Cover({ title, coverUrl, seed, height = 200, className }) {
-  const w = Math.round(height * 1.5) || 1200; // 3:2 aprox
+  const w = Math.round(height * 1.5) || 1200; 
   const h = height || 800;
 
   const [aicSrc, setAicSrc] = useState(null);
@@ -65,7 +62,7 @@ function Cover({ title, coverUrl, seed, height = 200, className }) {
     [coverUrl, seed, w, h]
   );
 
-  // Inserta AIC tras coverUrl (si existe); si no hay coverUrl, al inicio
+
   const sources = useMemo(() => {
     if (!aicSrc) return baseSources;
     const arr = [...baseSources];
@@ -86,7 +83,7 @@ function Cover({ title, coverUrl, seed, height = 200, className }) {
         const url = await getAicUrl(seed, w);
         if (alive && url) setAicSrc(url);
       } catch {
-        // si AIC falla, seguimos con flickr/place-hold
+        //
       }
     })();
     return () => { alive = false; };
@@ -163,7 +160,6 @@ export default function BlogPost() {
         .rel-title{font-weight:800;line-height:1.2}
       `}</style>
 
-      {/* Card principal */}
       <article className="post-card">
         <Cover
           className="post-hero"
@@ -195,7 +191,6 @@ export default function BlogPost() {
         </div>
       </article>
 
-      {/* Relacionados */}
       {others.length > 0 && (
         <section style={{ display: "grid", gap: 10 }}>
           <h3 style={{ color: "var(--green-medium)", fontWeight: 900, fontSize: 20, margin: 0 }}>

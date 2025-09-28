@@ -5,7 +5,7 @@ import java.util.List;
 public class PurchaseDtos {
     public static class CreatePurchaseRequest {
         private Long supplierId;
-        private List<Item> items; // { plantId, quantity }
+        private List<Item> items; 
 
         public static class Item {
             private Long plantId;

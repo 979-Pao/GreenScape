@@ -42,22 +42,18 @@ export default function AdminPlantForm() {
       try {
         let data = null;
 
-        // 1) intenta admin
         if (typeof AdminApi.adminGetPlant === "function") {
           try {
             data = await AdminApi.adminGetPlant(id);
           } catch (e) {
-            // si falla con 401/403/404, seguimos al fallback
             console.warn("adminGetPlant falló, uso público:", e?.response?.status || e?.message);
           }
         }
 
-        // 2) fallback público
         if (!data && typeof publicGetPlant === "function") {
           try {
             data = await publicGetPlant(id);
           } catch (e) {
-            // si también falla, re-lanza y lo atrapamos abajo
             throw e;
           }
         }
@@ -81,7 +77,7 @@ export default function AdminPlantForm() {
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
   const diff = useMemo(() => {
-    if (!initial) return form; // en crear, envia todo
+    if (!initial) return form; 
     const entries = Object.entries(form).filter(([k, v]) => String(v) !== String(initial[k]));
     return Object.fromEntries(entries);
   }, [form, initial]);

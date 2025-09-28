@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { adminListPurchases } from "../../api/admin";
 
 export default function AdminPurchases() {
-  const [all, setAll] = useState([]);      // todos los registros (no paginado desde backend)
+  const [all, setAll] = useState([]);      
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [status, setStatus] = useState("");
@@ -18,9 +18,9 @@ export default function AdminPurchases() {
     try {
       setLoading(true);
       setErr("");
-      const res = await adminListPurchases(); // <- sin params: devuelve List<OrderDto>
+      const res = await adminListPurchases(); 
       setAll(Array.isArray(res) ? res : []);
-      setPage(0); // vuelve a la primera página al recargar
+      setPage(0); 
     } catch (e) {
       console.error(e);
       setErr(e?.response?.data?.message || e?.message || "No se pudieron cargar las compras.");
@@ -31,7 +31,6 @@ export default function AdminPurchases() {
 
   useEffect(() => { load(); }, []);
 
-  // Filtro + paginación en cliente
   const filtered = status ? all.filter(p => p.status === status) : all;
   const totalPages = Math.max(1, Math.ceil(filtered.length / size));
   const pageSafe = Math.min(page, totalPages - 1);
@@ -41,7 +40,6 @@ export default function AdminPurchases() {
   const isFirst = pageSafe === 0;
   const isLast = pageSafe >= totalPages - 1;
 
-  // Si cambias el filtro, resetea a página 0
   useEffect(() => { setPage(0); }, [status]);
 
   return (
@@ -57,7 +55,7 @@ export default function AdminPurchases() {
           <option value="OPEN">Abiertas</option>
           <option value="SENT">Enviadas</option>
           <option value="RECEIVED">Recibidas</option>
-          {/* Ajusta estos valores al ENUM real del backend si difieren */}
+
         </select>
       </div>
 

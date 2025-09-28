@@ -12,7 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-  // Respuesta de error compacta
   record Err(String error, String message) {}
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -43,14 +42,12 @@ public class GlobalExceptionHandler {
     return new Err("CONFLICT", "Violación de integridad de datos");
   }
 
-  // ⛔️ CONCURRENCIA (tipo exacto de Spring Data)
   @ExceptionHandler(org.springframework.dao.OptimisticLockingFailureException.class)
   @ResponseStatus(org.springframework.http.HttpStatus.CONFLICT)
   public Err optimisticSpring(org.springframework.dao.OptimisticLockingFailureException e) {
     return new Err("CONFLICT", "Stock modificado por otra operación. Intenta de nuevo.");
   }
 
-  // ⛔️ CONCURRENCIA (tipo de ORM/JPA)
   @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
   @ResponseStatus(org.springframework.http.HttpStatus.CONFLICT)
   public Err optimisticJpa(org.springframework.orm.ObjectOptimisticLockingFailureException e) {
@@ -72,7 +69,6 @@ public class GlobalExceptionHandler {
             .body(new Err(code.toString(), reason));
   }
 
-  // Fallback (lo inesperado = 500)
   @ExceptionHandler(RuntimeException.class)
   @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
   public Err runtime(RuntimeException e){

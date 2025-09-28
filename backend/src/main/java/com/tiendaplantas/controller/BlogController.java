@@ -21,12 +21,12 @@ public class BlogController {
     Long authorId  = (p.getAuthor() != null) ? p.getAuthor().getId() : null;
     return new BlogDtos.Resp(
       p.getId(), p.getTitle(), p.getSlug(), p.getContent(),
-      p.getStatus(),            // 👈 enum directo, no .name()
+      p.getStatus(),            
       created, authorId
     );
   }
 
-  // Listado público paginado: solo PUBLISHED
+
   @GetMapping
   public Page<BlogDtos.Resp> list(Pageable pageable){
     return posts.findByStatusOrderByCreatedAtDesc(PostStatus.PUBLISHED, pageable)

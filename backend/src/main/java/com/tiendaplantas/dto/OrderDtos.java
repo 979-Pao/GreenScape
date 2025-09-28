@@ -5,9 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * DTOs para Carrito / Pedidos. Compacto en una sola clase contenedora.
- */
+/*** DTOs para Carrito / Pedidos. */
+
 public class OrderDtos {
 
   // -------- Requests --------
@@ -49,30 +48,30 @@ public class OrderDtos {
   }
 
   public static class OrderDto {
-    private Long id;                 // null si es carrito no persistido
-    private String status;           // "CART", "PAID", "NEW", etc.
+    private Long id;                
+    private String status;           
     private List<OrderItemDto> items;
     private BigDecimal total;
-    private String createdAt;        // ISO-8601
-    private Long customerId;         // id del dueño/creador
-    private String customerName;     // nombre del dueño/creador
-    private String supplierName;     // NUEVO: nombre del proveedor (para compras)
+    private String createdAt;        
+    private Long customerId;         
+    private String customerName;     
+    private String supplierName;     
 
-    // Constructor original (compat)
+
     public OrderDto(Long id, String status, List<OrderItemDto> items,
                     BigDecimal total, String createdAt, Long customerId) {
       this.id = id; this.status = status; this.items = items; this.total = total;
       this.createdAt = createdAt; this.customerId = customerId;
     }
 
-    // Constructor opcional incluyendo customerName (conveniencia)
+
     public OrderDto(Long id, String status, List<OrderItemDto> items,
                     BigDecimal total, String createdAt, Long customerId, String customerName) {
       this(id, status, items, total, createdAt, customerId);
       this.customerName = customerName;
     }
 
-    // Constructor opcional incluyendo customerName y supplierName (conveniencia)
+
     public OrderDto(Long id, String status, List<OrderItemDto> items,
                     BigDecimal total, String createdAt, Long customerId,
                     String customerName, String supplierName) {
@@ -91,7 +90,7 @@ public class OrderDtos {
     public String getCustomerName() { return customerName; }
     public void setCustomerName(String customerName) { this.customerName = customerName; }
 
-    // NUEVO: getter/setter para supplierName
+
     public String getSupplierName() { return supplierName; }
     public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
   }

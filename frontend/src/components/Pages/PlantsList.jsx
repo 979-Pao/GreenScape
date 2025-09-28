@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { listPlants, adminDeletePlant } from "../../api/admin"; // 👈 cambio
+import { listPlants, adminDeletePlant } from "../../api/admin";
 import Pagination from "../Common/Pagination";
 import AdminTopbar from "../Admin/AdminTopbar";
 
@@ -9,13 +9,11 @@ export default function PlantsList() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // filtros
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
 
-  // paginación
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -23,7 +21,7 @@ export default function PlantsList() {
     try {
       setLoading(true);
       setErr("");
-      const data = await listPlants(); // GET /api/admin/plants
+      const data = await listPlants(); 
       setRows(Array.isArray(data) ? data : data?.content || []);
     } catch (e) {
       setErr(e?.response?.data?.message || e?.message || "No se pudieron cargar las plantas");

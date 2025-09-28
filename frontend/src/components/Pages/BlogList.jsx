@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-
-// ✅ un único import por namespace del módulo admin
 import * as adminApi from "../../api/admin";
-// ✅ fallback al listado público si el admin no existe
 import { listPosts as publicListPosts } from "../../api/blog";
-
 import Pagination from "../Common/Pagination";
 import DateRange from "../Common/DateRange";
 import AdminTopbar from "../Admin/AdminTopbar";
@@ -17,13 +13,11 @@ export default function AdminBlogList() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
-  // filtros
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
 
-  // paginación (client-side)
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -32,7 +26,6 @@ export default function AdminBlogList() {
       setLoading(true);
       setErr("");
 
-      // 👉 si adminListPosts no existe, usa el público
       const fetcher = adminApi.adminListPosts ?? publicListPosts;
       const data = await fetcher();
 

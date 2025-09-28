@@ -1,18 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import {
-  adminCreatePost,
-  adminUpdatePost,
-  adminGetPost, // GET /api/admin/blog/:id
-} from "../../../api/admin";
-import { getPost as publicGetPost } from "../../../api/blog"; // fallback público
+import { adminCreatePost, adminUpdatePost, adminGetPost,} from "../../../api/admin";
+import { getPost as publicGetPost } from "../../../api/blog"; 
 import AdminTopbar from "../AdminTopbar";
 
 const normalizeForForm = (p = {}) => ({
   title:   p.title   ?? "",
   slug:    p.slug    ?? "",
   content: p.content ?? "",
-  status:  p.status  ?? "DRAFT", // "DRAFT" | "PUBLISHED"
+  status:  p.status  ?? "DRAFT", 
 });
 
 export default function AdminBlogForm() {
@@ -25,7 +21,6 @@ export default function AdminBlogForm() {
   const [loading, setLoading] = useState(isEdit);
   const [err, setErr] = useState("");
 
-  // Carga inicial (edición)
   useEffect(() => {
     if (!isEdit) return;
     let alive = true;
@@ -48,9 +43,9 @@ export default function AdminBlogForm() {
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  // Solo enviar cambios cuando editas
+
   const diff = useMemo(() => {
-    if (!initial) return form; // en creación, envía todo
+    if (!initial) return form; 
     const entries = Object.entries(form).filter(([k, v]) => String(v) !== String(initial[k]));
     return Object.fromEntries(entries);
   }, [form, initial]);

@@ -5,13 +5,11 @@ import { login as apiLogin, me as apiMe, logout as apiLogout, register as apiReg
 
 const AuthContext = createContext(null);
 
-// Hook
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
 
 export default function AuthProvider({ children }) {
   const navigate = useNavigate();
-
-  // ===== estado inicial desde localStorage + header =====
   const [auth, setAuth] = useState(() => {
     try {
       const raw = localStorage.getItem("auth");
@@ -27,13 +25,11 @@ export default function AuthProvider({ children }) {
 
   const [booting, setBooting] = useState(true);
 
-  // ===== persistencia en localStorage =====
   useEffect(() => {
     if (auth?.token) localStorage.setItem("auth", JSON.stringify(auth));
     else localStorage.removeItem("auth");
   }, [auth]);
 
-  // ===== bootstrap: si hay token, refrescar user con /me =====
   useEffect(() => {
     let alive = true;
 
@@ -61,9 +57,8 @@ export default function AuthProvider({ children }) {
       alive = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // solo al montar
+  }, []); 
 
-  // ===== helpers =====
   const getUserRolesUpper = (user) => {
     if (!user) return [];
     if (Array.isArray(user.roles)) return user.roles.map((r) => String(r).toUpperCase());
@@ -74,10 +69,9 @@ export default function AuthProvider({ children }) {
   const goHomeByRole = (user) => {
     const roles = getUserRolesUpper(user);
     if (roles.includes("ADMIN")) navigate("/admin", { replace: true });
-    else navigate("/client/me", { replace: true }); // o "/profile"
+    else navigate("/client/me", { replace: true }); 
   };
 
-  // ===== acciones =====
   const signIn = async (email, password) => {
     const { token, user: userFromLogin } = await apiLogin(email, password);
     if (!token) throw new Error("El backend no devolvió token en /login");
@@ -138,7 +132,7 @@ export default function AuthProvider({ children }) {
     [auth]
   );
 
-  if (booting) return null; // aquí puedes poner un spinner global
+  if (booting) return null; 
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

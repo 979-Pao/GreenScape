@@ -6,7 +6,6 @@ function Avatar({ user }) {
   return <div className="avatar-circle" aria-hidden="true">{letter}</div>;
 }
 
-// Normaliza un rol: "ROLE_CLIENT" -> "CLIENT"
 const normRole = (r) => String(r || "").replace(/^ROLE_/, "").toUpperCase();
 
 export default function Profile() {
@@ -25,7 +24,6 @@ export default function Profile() {
     );
   }
 
-  // Acepta user.role (string) o user.roles (array)
   const rolesArrRaw = Array.isArray(user.roles)
     ? user.roles
     : (user.role ? [user.role] : []);
@@ -35,7 +33,6 @@ export default function Profile() {
   const primaryRole = roles[0] || "";
   const roleClass = `role-badge role-${primaryRole.toLowerCase()}`;
 
-  // Etiqueta más humana (opcional)
   const roleLabel = {
     CLIENT: "CLIENTE",
     ADMIN: "ADMIN",
@@ -44,7 +41,7 @@ export default function Profile() {
 
   return (
     <section className="container" style={{ padding: "40px 0", display: "grid", gap: 24 }}>
-      {/* Header del perfil */}
+
       <div
         style={{
           display: "flex", alignItems: "center", gap: 16,
@@ -63,7 +60,6 @@ export default function Profile() {
         {primaryRole && <span className={roleClass}>{roleLabel}</span>}
       </div>
 
-      {/* Detalle rápido */}
       <div
         style={{
           display: "grid", gap: 12, background: "#fff",
@@ -77,7 +73,6 @@ export default function Profile() {
         </ul>
       </div>
 
-      {/* Accesos rápidos según rol */}
       <div
         style={{
           display: "grid",
@@ -85,24 +80,23 @@ export default function Profile() {
           gap: 12,
         }}
       >
-        {/* Común */}
 
 
-        {/* CLIENT → carrito / pedidos */}
+
         {hasRole("CLIENT") && (
           <>
             <Link to="/client/me" className="btn" style={{ textAlign: "center" }}>
               Editar perfil </Link>
             <Link to="/cart" className="btn" style={{ textAlign: "center" }}>
               Carrito</Link>
-            {/* NUEVA ruta legible */}
+
             <Link to="/mi-historial" className="btn ghost" style={{ textAlign: "center" }}>
               Mis pedidos </Link>
-            {/* Si prefieres mantener /orders, cambia a to="/orders" */}
+
           </>
         )}
 
-        {/* SUPPLIER */}
+
         {hasRole("SUPPLIER") && (
          <>
            <Link to="/supplier/me" className="btn" style={{ textAlign: "center" }}>
@@ -112,7 +106,7 @@ export default function Profile() {
          </>
         )}
 
-        {/* ADMIN */}
+
         {hasRole("ADMIN") && (
           <>
             <Link to="/admin/me" className="btn" style={{ textAlign: "center" }}>

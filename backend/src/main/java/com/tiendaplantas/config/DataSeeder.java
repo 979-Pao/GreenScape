@@ -83,7 +83,7 @@ public class DataSeeder {
         };
     }
 
-    /** Crea o actualiza el usuario; si existe con password sin codificar, la codifica. */
+
     private static User upsertUser(
             UserRepository repo,
             String email,
@@ -94,7 +94,7 @@ public class DataSeeder {
     ) {
         return repo.findByEmail(email)
                 .map(u -> {
-                    // Si parece no-BCrypt, re-codificar
+
                     String p = u.getPassword();
                     if (!isBcrypt(p)) {
                         u.setPassword(encoder.encode(rawPassword));
@@ -115,7 +115,6 @@ public class DataSeeder {
                 });
     }
 
-    /** Heurística sencilla para detectar BCrypt. */
     private static boolean isBcrypt(String p) {
         if (p == null) return false;
         return p.startsWith("$2a$") || p.startsWith("$2b$") || p.startsWith("$2y$")
@@ -127,7 +126,7 @@ public class DataSeeder {
         Plant plant = new Plant();
         plant.setScientificName(sci);
         plant.setCommonName(common);
-        plant.setName(sci); // si tienes ambos campos 'name' y 'scientificName'
+        plant.setName(sci); 
         plant.setDescription(desc);
         plant.setCategory(category);
         plant.setPrice(BigDecimal.valueOf(price));
@@ -144,7 +143,6 @@ public class DataSeeder {
         b.setContent(content);
         b.setStatus(status);
         b.setCreatedAt(Instant.now());
-        // Quita esta línea si tu entidad BlogPost no tiene 'author'
         b.setAuthor(author);
         return b;
     }

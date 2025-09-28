@@ -105,10 +105,9 @@ public class AdminController {
     var allOrders = orderRepo.findAll();
     long totalOrders = allOrders.size();
 
-    // Estados que computan ingresos de cliente
+
     var revenueStatuses = EnumSet.of(OrderStatus.PAID, OrderStatus.SHIPPED);
 
-    // Calcular total desde items (por si Order no expone getTotal())
     java.util.function.Function<Order, BigDecimal> calcTotal = o -> {
       if (o.getItems() == null) return BigDecimal.ZERO;
       return o.getItems().stream()
@@ -206,8 +205,6 @@ public class AdminController {
 
   @DeleteMapping("/plants/{id}")
   public ResponseEntity<Void> deletePlant(@PathVariable Long id) {
-    // Si quieres bloquear borrado con relaciones, descomenta y ajusta:
-    // if (orderRepo.existsByItems_Plant_Id(id)) throw new ResponseStatusException(HttpStatus.CONFLICT, "La planta está asociada a pedidos");
     plants.delete(id);
     return ResponseEntity.noContent().build();
   }

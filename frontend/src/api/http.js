@@ -2,7 +2,7 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
-  withCredentials: false, // JWT no usa cookie
+  withCredentials: false, 
   headers: { "Content-Type": "application/json" },
 });
 
@@ -17,7 +17,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// si el back devuelve 401, limpia sesión
 api.interceptors.response.use(
   (res) => res,
   (err) => {

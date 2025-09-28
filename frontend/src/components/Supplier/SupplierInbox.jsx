@@ -23,25 +23,20 @@ export default function SupplierInbox() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-
-  // paginación (client-side)
-  const [page, setPage] = useState(1);      // 1-based
+  const [page, setPage] = useState(1);      
   const [pageSize, setPageSize] = useState(10);
-
   const fetchAll = useCallback(async () => {
     setLoading(true); setErr("");
     try {
       const [k, list] = await Promise.all([
-        getSupplierKpis(),       // opcional: { pending, openThreads, ... }
-        supplierListPurchases(), // List<OrderDto> (POs del supplier)
+        getSupplierKpis(),       
+        supplierListPurchases(), 
       ]);
 
-      // normaliza lista y ordena por fecha desc
       const arr = Array.isArray(list) ? [...list] : (list?.content || []);
       arr.sort((a,b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")));
       setRows(arr);
 
-      // KPIs con fallback calculado en frontend
       const pendingCount = (k?.pending != null)
         ? k.pending
         : arr.filter(o => o.status === "NEW").length;
@@ -53,10 +48,9 @@ export default function SupplierInbox() {
       setKpi({
         pending: pendingCount,
         openThreads,
-        totalPos: arr.length, // NUEVO: PO totales
+        totalPos: arr.length, 
       });
 
-      // si la página actual quedó fuera de rango tras refrescar, reajusta
       const totalPagesNow = Math.max(1, Math.ceil(arr.length / pageSize));
       if (page > totalPagesNow) setPage(totalPagesNow);
     } catch (e) {
@@ -86,7 +80,6 @@ export default function SupplierInbox() {
     }
   };
 
-  // cálculo de la página actual
   const total = rows.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const startIdx = (page - 1) * pageSize;
@@ -150,7 +143,6 @@ export default function SupplierInbox() {
             )}
           </div>
 
-          {/* Paginación al final */}
           {total > 0 && (
             <div className="pager" style={{ display:"flex", flexWrap:"wrap", gap:8, alignItems:"center", justifyContent:"space-between", marginTop:16 }}>
               <div style={{ display:"flex", gap:8, alignItems:"center" }}>

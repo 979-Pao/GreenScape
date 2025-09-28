@@ -27,7 +27,7 @@ import AdminUsersList from "../components/Pages/UsersList";
 import AdminPurchasesList from "../components/Pages/PurchasesList";
 import AdminOrderDetail from "../components/Admin/AdminOrderDetail";
 import BlogPage from "../components/Pages/BlogPage";
-import PlantPage from "../components/Pages/PlantPage"; // 👈 asegúrate de este path
+import PlantPage from "../components/Pages/PlantPage"; 
 
 export default function AppRouter() {
   return (

@@ -1,7 +1,8 @@
 export default function Hero(){
   return (
     <section className="section-hero container">
-           <div className="container-img-hero">
+      
+      <div className="container-img-hero">
         <div className="img-hero">
           <img src="public/header.plant.png" alt="Header Img" />
         </div>

@@ -3,9 +3,9 @@ import { getPlantsPaged } from "../../api/plants";
 
 function slugify(s = "") {
   return String(s)
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // quita acentos
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")                      // espacios/raros -> "-"
+    .replace(/[^a-z0-9]+/g, "-")                      
     .replace(/(^-|-$)/g, "");
 }
 

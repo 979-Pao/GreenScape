@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const PLACEHOLDER = "/img/placeholder-plant.png"; // asegúrate de tener este archivo en /public/img/
+const PLACEHOLDER = "/img/placeholder-plant.png"; 
 
 function slugify(s = "") {
   return String(s)
@@ -23,13 +23,13 @@ export default function PlantCard({ plant, onAdd }) {
         borderRadius: 12,
         overflow: "hidden",
         display: "grid",
-        // layout fijo: imagen + bloque info que rellena + botones abajo
+
         gridTemplateRows: "190px 1fr auto",
-        height: 420,               // <-- altura fija
+        height: 420,               
         boxShadow: "0 1px 2px rgba(0,0,0,.04)",
       }}
     >
-      {/* Imagen fija */}
+
       <div style={{ background: "#f8fafc" }}>
         <img
           src={cover}
@@ -40,7 +40,6 @@ export default function PlantCard({ plant, onAdd }) {
         />
       </div>
 
-      {/* Texto */}
       <div style={{ padding: 12, display: "grid", gap: 8 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 800 }}>
@@ -60,14 +59,14 @@ export default function PlantCard({ plant, onAdd }) {
             WebkitLineClamp: 3,
             WebkitBoxOrient: "vertical",
             overflow: "hidden",
-            minHeight: 60, // asegura altura estable del texto
+            minHeight: 60, 
           }}
         >
           {plant.description || "Planta hermosa y fácil de cuidar."}
         </p>
       </div>
 
-      {/* Acciones */}
+
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: 12 }}>
         <Link className="btn-add-cart" style={{ textAlign: "center", textDecoration: "none" }} to={`/plants/${plant.id}`}>
           Ver

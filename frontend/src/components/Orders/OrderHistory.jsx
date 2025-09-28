@@ -10,7 +10,7 @@ export default function OrderHistory() {
     try {
       setLoading(true);
       setErr(null);
-      const data = await getMyOrderHistory(); // Espera: Array<Order>
+      const data = await getMyOrderHistory(); 
       setOrders(Array.isArray(data) ? data : []);
     } catch (e) {
       setErr(

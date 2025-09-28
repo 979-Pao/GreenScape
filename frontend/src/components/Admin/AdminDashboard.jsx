@@ -1,19 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { getAdminKpis } from "../../api/admin"; // GET /api/admin/reports/overview
+import { getAdminKpis } from "../../api/admin"; 
 
 function KpiCard({ label, value, iconClass, title }) {
   return (
     <div
-      style={{
-        background: "#fff",
-        border: "1px solid #e5e7eb",
-        borderRadius: 12,
-        padding: 16,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
+      style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 12, padding: 16, display: "flex", alignItems: "center", justifyContent: "space-between", }}
       title={title || ""}
     >
       <div>
@@ -40,7 +32,7 @@ export default function AdminDashboard() {
     (async () => {
       try {
         setLoading(true); setErr("");
-        const data = await getAdminKpis(); // { totalUsers, totalPlants, totalOrders, totalRevenue }
+        const data = await getAdminKpis(); 
         if (alive) setKpi(data || {});
       } catch (e) {
         if (alive) setErr(e?.response?.data?.message || e?.message || "No se pudieron cargar los KPIs.");
@@ -60,7 +52,7 @@ export default function AdminDashboard() {
   const totalPlants  = safeInt(kpi?.totalPlants);
   const totalUsers   = safeInt(kpi?.totalUsers);
 
-  // Estilos de los ítems negros (lista)
+  // Estilos ítems
   const item = {
     display: "flex",
     alignItems: "center",
@@ -83,7 +75,7 @@ export default function AdminDashboard() {
       {loading && <p>Cargando KPIs...</p>}
       {!loading && err && <p style={{ color: "#b42318" }}>{err}</p>}
 
-      {/* KPIs en grilla como la imagen */}
+      {/* KPIs en grilla*/}
       <div
         style={{
           display: "grid",
@@ -103,32 +95,16 @@ export default function AdminDashboard() {
           iconClass="fa-solid fa-users" title="Total de usuarios registrados" />
       </div>
 
-      {/* LISTAR (para modificar) con tarjetas negras */}
+      {/* LISTAR (para modificar)*/}
       <details open style={{ background:"#f6f6f6", borderRadius:12, padding:12 }}>
         <summary style={{ cursor:"pointer", fontWeight:700, color:"var(--green-medium)" }}>
            LISTADOS EDICION
         </summary>
-
         <nav style={{ ...wrap, marginTop: 12 }}>
-          <Link style={item} to="/admin/plants">
-            <span><span style={icon}>🌱</span> &nbsp; Plantas</span>
-            <span>➜</span>
-          </Link>
-
-          <Link style={item} to="/admin/blog">
-            <span><span style={icon}>📰</span> &nbsp; Blog</span>
-            <span>➜</span>
-          </Link>
-
-          <Link style={item} to="/admin/users">
-            <span><span style={icon}>👥</span> &nbsp; Clientes/Proveedores</span>
-            <span>➜</span>
-          </Link>
-
-          <Link style={item} to="/admin/purchases">
-            <span><span style={icon}>🚚</span> &nbsp; Ventas/Compras</span>
-            <span>➜</span>
-          </Link>
+          <Link style={item} to="/admin/plants"> <span><span style={icon}>🌱</span> &nbsp; Plantas</span> <span>➜</span> </Link>
+          <Link style={item} to="/admin/blog"> <span><span style={icon}>📰</span> &nbsp; Blog</span> <span>➜</span> </Link>
+          <Link style={item} to="/admin/users"> <span><span style={icon}>👥</span> &nbsp; Clientes/Proveedores</span> <span>➜</span> </Link>
+          <Link style={item} to="/admin/purchases"> <span><span style={icon}>🚚</span> &nbsp; Ventas/Compras</span> <span>➜</span> </Link>
         </nav>
       </details>
     </section>

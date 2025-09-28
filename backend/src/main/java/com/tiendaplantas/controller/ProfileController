@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api")
-// Habilitamos método a método. Si quieres, puedes dejar un hasAnyRole aquí.
+
 public class ProfileController {
 
   private final UserRepository users;
@@ -25,7 +25,6 @@ public class ProfileController {
     this.enc = enc;
   }
 
-  // ======== Helpers ========
   private static UserDtos.Resp toResp(User u) {
     return new UserDtos.Resp(u.getId(), u.getName(), u.getEmail(), u.getRole(), u.getPhone());
   }

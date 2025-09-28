@@ -4,8 +4,7 @@ import { getPlant, getPlantsPaged } from "../../api/plants";
 import { addToCart } from "../../api/orders";
 import PlantList from "../Catalog/PlantList";
 
-// === Helpers ===
-const PLACEHOLDER = "/img/placeholder-plant.png"; // asegúrate de tener este archivo en /public/img/
+const PLACEHOLDER = "/img/placeholder-plant.png"; 
 const slugify = (s = "") =>
   String(s)
     .normalize("NFD")
@@ -14,17 +13,12 @@ const slugify = (s = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-/**
- * Wrapper: decide listado o detalle SIN usar hooks condicionalmente
- */
+
 export default function PlantPage() {
-  const { id } = useParams(); // hook en tope de componente (OK)
-  return id ? <PlantDetail id={id} /> : <PlantList />; // no hay hooks después
+  const { id } = useParams(); 
+  return id ? <PlantDetail id={id} /> : <PlantList />; 
 }
 
-/**
- * Detalle de planta
- */
 function PlantDetail({ id }) {
   const [plant, setPlant] = useState(null);
   const [related, setRelated] = useState([]);
@@ -41,15 +35,13 @@ function PlantDetail({ id }) {
       try {
         setErr("");
 
-        // Primero intento directo
         let p = null;
         try {
           p = await getPlant(id);
         } catch {
-          /* puede no existir ese endpoint; seguimos con fallback */
+          /**/
         }
 
-        // Fallback y relacionados
         const page = await getPlantsPaged({ page: 0, size: 200 });
         const rows = Array.isArray(page?.content) ? page.content : [];
 
@@ -61,7 +53,7 @@ function PlantDetail({ id }) {
 
         const rel = rows
           .filter((r) => String(r.id) !== String(id))
-          .slice(0, 4);
+          .slice(0, 5);
 
         if (!alive) return;
         setPlant(p);
@@ -108,12 +100,12 @@ function PlantDetail({ id }) {
 
   return (
     <section className="container" style={{ padding: "24px 0", display: "grid", gap: 24 }}>
-      {/* Volver */}
+
       <Link to="/tienda" className="btn ghost">
         ← Volver al catálogo
       </Link>
 
-      {/* Card detalle */}
+
       <div
         style={{
           display: "grid",
@@ -126,7 +118,7 @@ function PlantDetail({ id }) {
           padding: 16,
         }}
       >
-        {/* Imagen */}
+
         <div style={{ background: "#f9fafb", borderRadius: 12, overflow: "hidden" }}>
           <img
             src={cover}
@@ -139,7 +131,7 @@ function PlantDetail({ id }) {
           />
         </div>
 
-        {/* Info */}
+
         <div style={{ display: "grid", gap: 12 }}>
           <h1 style={{ margin: 0, color: "var(--green-medium)" }}>
             {plant.commonName || plant.scientificName}
@@ -150,13 +142,13 @@ function PlantDetail({ id }) {
             {" · "}Stock: {plant.stock ?? 0}
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
             <div style={{ fontWeight: 800, fontSize: 24 }}>
               {money.format(Number(plant.price || 0))}
             </div>
 
-            {/* Stepper cantidad */}
-            <div
+
+            <div 
               aria-label="selector de cantidad"
               style={{
                 display: "inline-flex",
@@ -193,8 +185,8 @@ function PlantDetail({ id }) {
             {plant.description || "Planta hermosa y fácil de cuidar."}
           </div>
 
-          {/* Características rápidas (mock) */}
-          <div
+          {/* Características (mock) */}
+          <div className="only-desktop"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit,minmax(140px,1fr))",
@@ -220,7 +212,7 @@ function PlantDetail({ id }) {
         </div>
       </div>
 
-      {/* Relacionados (mini-grid) */}
+
       {related.length > 0 && (
         <div style={{ display: "grid", gap: 12 }}>
           <h3 className="title" style={{ color: "var(--green-medium)" }}>

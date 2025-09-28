@@ -39,7 +39,6 @@ public class PlantService {
   public Plant save(Plant p){ return plants.save(p); }
   public void delete(Long id){ plants.deleteById(id); }
 
-  // ====== NUEVOS (paginados) ======
   public Page<Plant> listPaged(String q, Pageable pageable){
     String s = q == null ? "" : q.trim();
     if (s.isEmpty()) return plants.findAll(pageable);
