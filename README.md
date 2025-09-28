@@ -182,10 +182,5 @@ curl -X POST http://localhost:8080/api/auth/login \
 
 ---
 
-## Problemas comunes
-
-* **No conecta a la DB** → verifica `SPRING_DATASOURCE_URL/USER/PASSWORD` y que MySQL está en `:3314`.
-* **CORS** desde el front → asegúrate de usar `VITE_API_BASE_URL` correcto y que el back está en `http://localhost:8080`.
-* **401** al llamar APIs privadas → confirma que envías `Authorization: Bearer <token>` y que no expiró.
 
 
