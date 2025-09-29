@@ -86,7 +86,7 @@ function Cover({ title, coverUrl, seed, height = 200 }) {
       try {
         const url = await getAicUrl(seed, w);
         if (alive && url) setAicSrc(url);
-      } catch {
+      } catch {/**/
       }
     })();
     return () => { alive = false; };
